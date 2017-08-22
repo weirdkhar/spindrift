@@ -17,11 +17,10 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
 import threading
-import atmoscripts
-
 import ToolTip
 
-
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import atmoscripts
 
 class ccn_processing(ttk.Frame):
 
@@ -37,7 +36,7 @@ class ccn_processing(ttk.Frame):
         try:
             self.files_raw
         except AttributeError:
-#        if self.files_raw is None:
+        # if self.files_raw is None:
             msg = msg + '\n Please select raw input files'
 
         try:
@@ -126,7 +125,7 @@ class ccn_processing(ttk.Frame):
 ### When debugging, comment out from here to the next break.
 ### When finished, uncomment it so that the status window works.
 #######################
-#        ''' UNCOMMENT WHEN FINISHED DEBUGGING
+# ''' UNCOMMENT WHEN FINISHED DEBUGGING
         t = threading.Thread(target = self.loadAndProcess_Multithread,
                              args=(output_filetype,
                                    output_time_res,
@@ -623,7 +622,7 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
         self.top.destroy()
 
 
-		##-----------------------------------------------------------
+##-----------------------------------------------------------
 ## NetCDF Description input window
 ##-----------------------------------------------------------
     def _build_netcdf_input_window(self):
