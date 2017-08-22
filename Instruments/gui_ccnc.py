@@ -9,14 +9,14 @@ Useful documentation:
     http://pyinmyeye.blogspot.com.au/2012/08/tkinter-combobox-demo.html
     http://www.python-course.eu/tkinter_layout_management.php
 '''
-import CCNC
 import os
 import sys
+import threading
+import CCNC
 import tkinter as tk
 #from tkinter import *
 from tkinter import filedialog
 from tkinter import ttk
-import threading
 import ToolTip
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -55,36 +55,33 @@ class ccn_processing(ttk.Frame):
             if os.path.exists(self.output_path):
                 os.chdir(self.output_path)
 
-            atmoscripts.save_temp_glob_att(
-                    self.nc_global_title,
-                    self.nc_global_description,
-                    self.nc_author,
-                    self.nc_global_institution,
-                    self.nc_global_comment)
+            atmoscripts.save_temp_glob_att(self.nc_global_title,
+                                           self.nc_global_description,
+                                           self.nc_author,
+                                           self.nc_global_institution,
+                                           self.nc_global_comment)
 
         # Open new window showing status with the option to cancel execution
         # and disable input window
         self._build_status_window()
 
-
         # Setup input
-        output_time_res = [
-                self.output_1s.get(),
-                self.output_5s.get(),
-                self.output_10s.get(),
-                self.output_15s.get(),
-                self.output_30s.get(),
-                self.output_1m.get(),
-                self.output_5m.get(),
-                self.output_10m.get(),
-                self.output_15m.get(),
-                self.output_30m.get(),
-                self.output_1h.get(),
-                self.output_3h.get(),
-                self.output_6h.get(),
-                self.output_12h.get(),
-                self.output_1d.get()
-                ]
+        output_time_res = [self.output_1s.get(),
+                           self.output_5s.get(),
+                           self.output_10s.get(),
+                           self.output_15s.get(),
+                           self.output_30s.get(),
+                           self.output_1m.get(),
+                           self.output_5m.get(),
+                           self.output_10m.get(),
+                           self.output_15m.get(),
+                           self.output_30m.get(),
+                           self.output_1h.get(),
+                           self.output_3h.get(),
+                           self.output_6h.get(),
+                           self.output_12h.get(),
+                           self.output_1d.get()]
+
         # Change to boolean array
         output_time_res = [True if item == 1
                            else False
@@ -126,21 +123,20 @@ class ccn_processing(ttk.Frame):
 ### When finished, uncomment it so that the status window works.
 #######################
 # ''' UNCOMMENT WHEN FINISHED DEBUGGING
-        t = threading.Thread(target = self.loadAndProcess_Multithread,
+        t = threading.Thread(target=self.loadAndProcess_Multithread,
                              args=(output_filetype,
                                    output_time_res,
                                    concat_file_freq,
                                    mask_df,
-                                   flow_cal_df)
-                             )
+                                   flow_cal_df))
         t.start()
 
     def loadAndProcess_Multithread(self,
-                               output_filetype,
-                               output_time_res,
-                               concat_file_freq,
-                               mask_df,
-                               flow_cal_df):
+                                   output_filetype,
+                                   output_time_res,
+                                   concat_file_freq,
+                                   mask_df,
+                                   flow_cal_df):
 #        '''
 #######################
 ### When debugging, comment out to here.
@@ -148,28 +144,26 @@ class ccn_processing(ttk.Frame):
 #######################
 
         # Call processing function
-        CCNC.LoadAndProcess(
-                ccn_raw_path = self.raw_path,
-                ccn_output_path = self.output_path,
-                ccn_output_filetype = output_filetype,
-                filename_base = 'CCN',
-                force_reload_from_source = self.forceReload.get(),
-                split_by_supersaturation = self.split_SS.get(),
-                QC = self.qc.get(),
-                output_time_resolution=output_time_res,
-                concat_file_frequency = concat_file_freq,
-                mask_period_timestamp_df = mask_df,
-                flow_cal_df = flow_cal_df,
-                flow_setpt = float(self.tb_flow_rate_set.get())*1000,
-                flow_polyDeg = float(self.tb_flow_rate_fit.get()),
-                calibrate_for_pressure = self.cb_pressCal,
-                press_cal = float(self.tb_calPress.get()),
-                press_meas = float(self.tb_measPress.get()),
-                plot_each_step = self.plotresults.get(),
-                input_filelist = list(self.files_raw),
-                gui_mode = True,
-                gui_mainloop = self.w_status
-                )
+        CCNC.LoadAndProcess(ccn_raw_path=self.raw_path,
+                            ccn_output_path=self.output_path,
+                            ccn_output_filetype=output_filetype,
+                            filename_base='CCN',
+                            force_reload_from_source=self.forceReload.get(),
+                            split_by_supersaturation=self.split_SS.get(),
+                            QC=self.qc.get(),
+                            output_time_resolution=output_time_res,
+                            concat_file_frequency=concat_file_freq,
+                            mask_period_timestamp_df=mask_df,
+                            flow_cal_df=flow_cal_df,
+                            flow_setpt=float(self.tb_flow_rate_set.get())*1000,
+                            flow_polyDeg=float(self.tb_flow_rate_fit.get()),
+                            calibrate_for_pressure=self.cb_pressCal,
+                            press_cal=float(self.tb_calPress.get()),
+                            press_meas=float(self.tb_measPress.get()),
+                            plot_each_step=self.plotresults.get(),
+                            input_filelist=list(self.files_raw),
+                            gui_mode=True,
+                            gui_mainloop=self.w_status)
 
         self.finished_window()
 
@@ -183,13 +177,13 @@ class ccn_processing(ttk.Frame):
         self.raw_path = os.path.dirname(self.files_raw[0])
 
         # remove previous input
-        self.lb_openFiles.delete(0,tk.END)
+        self.lb_openFiles.delete(0, tk.END)
 
         # Update the text box
         self.lb_openFiles.delete(0, tk.END)
         for i in range(0, len(self.files_raw)):
-            self.lb_openFiles.insert(i,self.files_raw[i])
-        try :
+            self.lb_openFiles.insert(i, self.files_raw[i])
+        try:
             if self.output_path == '':
                 self.update_output_path()
         except AttributeError:
@@ -197,7 +191,7 @@ class ccn_processing(ttk.Frame):
         return
 
     def update_output_path(self):
-        self.t_outputPath.insert(tk.END,self.raw_path)
+        self.t_outputPath.insert(tk.END, self.raw_path)
         self.output_path = self.raw_path
 
 
@@ -209,20 +203,20 @@ class ccn_processing(ttk.Frame):
     def ask_mask_file(self):
         ''' Asks for the mask file input and shows it in the gui'''
         self.mask_file = self.browse_for_file()
-        self.tb2.insert(tk.END,self.mask_file)
+        self.tb2.insert(tk.END, self.mask_file)
         return
 
     def ask_flowcal_file(self):
         ''' Asks for the flow cal file input and shows it in the gui'''
         self.flowcal_file = self.browse_for_file()
-        self.tb3.insert(tk.END,self.flowcal_file)
+        self.tb3.insert(tk.END, self.flowcal_file)
         return
 
     def output_path_dialog(self):
         '''Selecting output path, if not chosen, use the input directory'''
         self.output_path = filedialog.askdirectory()
-        self.t_outputPath.delete(0,tk.END)
-        self.t_outputPath.insert(tk.END,self.output_path)
+        self.t_outputPath.delete(0, tk.END)
+        self.t_outputPath.insert(tk.END, self.output_path)
 
 
     def grey_press_input(self):
@@ -255,10 +249,11 @@ class ccn_processing(ttk.Frame):
         self.nc_global_institution = self.nc_e3.get()
         self.nc_global_comment = self.nc_e4.get()
         self.w_netcdf_input.destroy()
+
 ##-----------------------------------------------------------
 ## GUI Widgets
 ##-----------------------------------------------------------
-    def __init__(self, isapp = True, name = 'ccnprocessing'):
+    def __init__(self, isapp=True, name='ccnprocessing'):
         ttk.Frame.__init__(self, name=name)
         self.pack(expand=tk.Y, fill=tk.BOTH)
         self.master.title('DMT CCN Processing')
@@ -272,7 +267,6 @@ class ccn_processing(ttk.Frame):
         mainFrame = tk.Frame(self)
         mainFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.Y)
 
-
         self._create_input_frame()
         self._create_output_frame()
         self._create_processing_frame()
@@ -280,29 +274,29 @@ class ccn_processing(ttk.Frame):
         self.f1.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
         self.f2.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
         self.f3.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f1.place(relx=0.01,rely=0.01,relheight=0.39,relwidth=0.49)
-        self.f2.place(relx=0.01,rely=0.4,relheight=0.6,relwidth=0.49)
-        self.f3.place(relx=0.51,rely=0.01,relheight=1,relwidth=0.49)
+        self.f1.place(relx=0.01, rely=0.01, relheight=0.39, relwidth=0.49)
+        self.f2.place(relx=0.01, rely=0.4, relheight=0.6, relwidth=0.49)
+        self.f3.place(relx=0.51, rely=0.01, relheight=1, relwidth=0.49)
 
     def _create_input_frame(self):
-        self.f1 = ttk.LabelFrame(mainFrame, text = 'Input data')
+        self.f1 = ttk.LabelFrame(mainFrame, text='Input data')
 
         # Create open file dialog input
         self.b_open = tk.Button(self.f1,
-                       text = "Select raw files",
-                       command = self.raw_file_dialog
-                       )
-        self.b_open.pack(pady=5,padx=10,side=tk.TOP)
-        self.b_open.place(relx=0.02,rely=0.02)
+                                text="Select raw files",
+                                command=self.raw_file_dialog)
+
+        self.b_open.pack(pady=5, padx=10, side=tk.TOP)
+        self.b_open.place(relx=0.02, rely=0.02)
 
         self.f11 = ttk.Frame(self.f1)
-        self.f11.pack(pady=5,padx=10,side=tk.LEFT)
-        self.f11.place(relx=0.02,rely=0.15, relheight=0.83, relwidth=0.96)
+        self.f11.pack(pady=5, padx=10, side=tk.LEFT)
+        self.f11.place(relx=0.02, rely=0.15, relheight=0.83, relwidth=0.96)
 
         self.lb_openFiles = tk.Listbox(self.f11)
         self.sb_openFiles = tk.Scrollbar(self.f11)
 
-        self.lb_openFiles.pack(side=tk.LEFT, fill='both',expand=True)
+        self.lb_openFiles.pack(side=tk.LEFT, fill='both', expand=True)
         self.sb_openFiles.pack(side=tk.LEFT, fill='y')
 
         # Attach listbox to scrollbar
@@ -313,55 +307,53 @@ class ccn_processing(ttk.Frame):
         # Create forceReload check button
         self.forceReload = tk.IntVar()
         self.cb_forceReload = tk.Checkbutton(self.f1,
-                                        text="Force reload from source",
-                                        variable = self.forceReload)
+                                             text="Force reload from source",
+                                             variable=self.forceReload)
         self.cb_forceReload.select()
-        self.cb_forceReload.pack(pady=5,padx=10,side=tk.TOP)
-        self.cb_forceReload.place(relx=0.52,rely=0.02)
+        self.cb_forceReload.pack(pady=5, padx=10, side=tk.TOP)
+        self.cb_forceReload.place(relx=0.52, rely=0.02)
 
 
     def _create_output_frame(self):
-        self.f2 = ttk.LabelFrame(mainFrame, text = 'Output data')
-
+        self.f2 = ttk.LabelFrame(mainFrame, text='Output data')
 
         # create output path dialog
         self.b_output = tk.Button(self.f2,
-                         text = "Change output directory",
-                         command = self.output_path_dialog
-                         )
-        self.b_output.pack(pady=5,padx=10, side=tk.LEFT)
-        self.b_output.place(rely=0.05,relx=0.02)
+                                  text="Change output directory",
+                                  command=self.output_path_dialog)
+
+        self.b_output.pack(pady=5, padx=10, side=tk.LEFT)
+        self.b_output.place(rely=0.05, relx=0.02)
         self.t_outputPath = tk.Entry(self.f2, width=42)
-        self.t_outputPath.pack(pady=5,padx=10, side=tk.LEFT)
+        self.t_outputPath.pack(pady=5, padx=10, side=tk.LEFT)
         self.t_outputPath.place(rely=0.06, relx=0.375)
 
         # Create output filetype combobox
-        filetypes = ['netcdf','hdf','csv']
+        filetypes = ['netcdf', 'hdf', 'csv']
         self.lb1 = ttk.Label(self.f2,
-                             text = 'Select output filetype')
-        self.lb1.pack(pady=5,padx=10,side=tk.LEFT)
+                             text='Select output filetype')
+        self.lb1.pack(pady=5, padx=10, side=tk.LEFT)
         self.lb1.place(rely=0.16, relx=0.02)
 
         self.cb_output_filetype = ttk.Combobox(self.f2,
-                                values=filetypes,
-                                state='readonly',
-                                width = 10)
+                                               values=filetypes,
+                                               state='readonly',
+                                               width=10)
         self.cb_output_filetype.current(1)  # set selection
         self.cb_output_filetype.pack(pady=5, padx=10, side=tk.LEFT)
         self.cb_output_filetype.place(rely=0.16, relx=0.375)
-        self.cb_output_filetype.bind("<<ComboboxSelected>>",self.launch_netcdf_input)
+        self.cb_output_filetype.bind("<<ComboboxSelected>>", self.launch_netcdf_input)
 
         # Create output file frequency combobox
-        file_freq=['Single file','Daily files','Weekly files','Monthly files']
-        self.lb2 = tk.Label(self.f2,
-                            text = 'Select output frequency')
-        self.lb2.pack(pady=5,padx=10,side=tk.LEFT)
+        file_freq = ['Single file', 'Daily files', 'Weekly files', 'Monthly files']
+        self.lb2 = tk.Label(self.f2, text='Select output frequency')
+        self.lb2.pack(pady=5, padx=10, side=tk.LEFT)
         self.lb2.place(rely=0.26, relx=0.02)
 
         self.cb_file_freq = ttk.Combobox(self.f2,
-                                values=file_freq,
-                                state='readonly',
-                                width = 15)
+                                         values=file_freq,
+                                         state='readonly',
+                                         width=15)
         self.cb_file_freq.current(2)  # set selection
         self.cb_file_freq.pack(pady=5, padx=10, side=tk.LEFT)
         self.cb_file_freq.place(rely=0.26, relx=0.375)
@@ -369,16 +361,15 @@ class ccn_processing(ttk.Frame):
         # Create output supersaturation checkbox
         self.split_SS = tk.IntVar()
         self.cb_SS = tk.Checkbutton(self.f2,
-                                    text = 'Split by supersaturation',
+                                    text='Split by supersaturation',
                                     variable=self.split_SS)
         self.cb_SS.select()
-        self.cb_SS.pack(pady=5,padx=10)
+        self.cb_SS.pack(pady=5, padx=10)
         self.cb_SS.place(relx=0.02, rely=0.36)
 
         # Create output time resolution options
-        self.f21 = ttk.LabelFrame(self.f2,
-                             text='Output time resolution')
-        self.f21.pack(pady=5,padx=10, fill='x')
+        self.f21 = ttk.LabelFrame(self.f2, text='Output time resolution')
+        self.f21.pack(pady=5, padx=10, fill='x')
         self.f21.place(rely=0.46, relx=0.02, relwidth=0.96, relheight=0.50)
 
         # Declare checkbox variables
@@ -418,70 +409,68 @@ class ccn_processing(ttk.Frame):
         self.cb_1s.select() # Select default value as checked
 
         # Position
-        self.cb_1s.pack(pady=2,padx=10)
-        self.cb_5s.pack(pady=2,padx=10)
-        self.cb_10s.pack(pady=2,padx=10)
-        self.cb_15s.pack(pady=2,padx=10)
-        self.cb_30s.pack(pady=2,padx=10)
-        self.cb_1m.pack(pady=2,padx=10)
-        self.cb_5m.pack(pady=2,padx=10)
-        self.cb_10m.pack(pady=2,padx=10)
-        self.cb_15m.pack(pady=2,padx=10)
-        self.cb_30m.pack(pady=2,padx=10)
-        self.cb_1h.pack(pady=2,padx=10)
-        self.cb_3h.pack(pady=2,padx=10)
-        self.cb_6h.pack(pady=2,padx=10)
-        self.cb_12h.pack(pady=2,padx=10)
-        self.cb_1d.pack(pady=2,padx=10)
+        self.cb_1s.pack(pady=2, padx=10)
+        self.cb_5s.pack(pady=2, padx=10)
+        self.cb_10s.pack(pady=2, padx=10)
+        self.cb_15s.pack(pady=2, padx=10)
+        self.cb_30s.pack(pady=2, padx=10)
+        self.cb_1m.pack(pady=2, padx=10)
+        self.cb_5m.pack(pady=2, padx=10)
+        self.cb_10m.pack(pady=2, padx=10)
+        self.cb_15m.pack(pady=2, padx=10)
+        self.cb_30m.pack(pady=2, padx=10)
+        self.cb_1h.pack(pady=2, padx=10)
+        self.cb_3h.pack(pady=2, padx=10)
+        self.cb_6h.pack(pady=2, padx=10)
+        self.cb_12h.pack(pady=2, padx=10)
+        self.cb_1d.pack(pady=2, padx=10)
 
         self.cb_1s.place(relx=0.02, rely=0.02)
         self.cb_5s.place(relx=0.02, rely=0.20)
-        self.cb_10s.place(relx=0.02,rely=0.38)
-        self.cb_15s.place(relx=0.02,rely=0.56)
-        self.cb_30s.place(relx=0.02,rely=0.74)
+        self.cb_10s.place(relx=0.02, rely=0.38)
+        self.cb_15s.place(relx=0.02, rely=0.56)
+        self.cb_30s.place(relx=0.02, rely=0.74)
 
         self.cb_1m.place(relx=0.33, rely=0.02)
         self.cb_5m.place(relx=0.33, rely=0.20)
-        self.cb_10m.place(relx=0.33,rely=0.38)
-        self.cb_15m.place(relx=0.33,rely=0.56)
-        self.cb_30m.place(relx=0.33,rely=0.74)
+        self.cb_10m.place(relx=0.33, rely=0.38)
+        self.cb_15m.place(relx=0.33, rely=0.56)
+        self.cb_30m.place(relx=0.33, rely=0.74)
 
         self.cb_1h.place(relx=0.67, rely=0.02)
         self.cb_3h.place(relx=0.67, rely=0.20)
         self.cb_6h.place(relx=0.67, rely=0.38)
-        self.cb_12h.place(relx=0.67,rely=0.56)
+        self.cb_12h.place(relx=0.67, rely=0.56)
         self.cb_1d.place(relx=0.67, rely=0.74)
 
-
-
     def _create_processing_frame(self):
-        self.f3 = ttk.LabelFrame(mainFrame, text = 'Processing options')
+        self.f3 = ttk.LabelFrame(mainFrame, text='Processing options')
 
         # Data mask/removal frame
         self.f31 = ttk.LabelFrame(self.f3, text='Data masking/removal')
-        self.f31.pack(pady=5,padx=10, fill='x')
+        self.f31.pack(pady=5, padx=10, fill='x')
         self.qc = tk.IntVar()
         self.cb_qc = tk.Checkbutton(self.f31,
-                               text="QC for internal parameters",
-                               variable=self.qc)
+                                    text="QC for internal parameters",
+                                    variable=self.qc)
         self.cb_qc.select()
         self.cb_qc.pack()
 
         self.f311 = tk.LabelFrame(self.f31,
-                    text='Select file with mask events (optional)'
-                    )
-        self.f311.pack(pady=5,padx=10, fill='x')
+                                  text='Select file with mask events (optional)')
+
+        self.f311.pack(pady=5, padx=10, fill='x')
         self.tb2 = tk.Entry(self.f311, width=45)
-        self.tb2.pack(pady=5,padx=10, fill='x', side=tk.LEFT)
+        self.tb2.pack(pady=5, padx=10, fill='x', side=tk.LEFT)
         self.b311 = tk.Button(self.f311,
-                         text = 'Browse',
-                         command = self.ask_mask_file
-                         )
-        self.b311.pack(pady=5,padx=10, side=tk.LEFT)
+                              text='Browse',
+                              command=self.ask_mask_file)
+
+        self.b311.pack(pady=5, padx=10, side=tk.LEFT)
 
         # Create help tooltip
-        self.l311 = tk.Label(self.f311,text = u'\u2754')
-        self.l311.pack(pady=5,side=tk.LEFT)
+        self.l311 = tk.Label(self.f311, text=u'\u2754')
+        self.l311.pack(pady=5, side=tk.LEFT)
         ToolTip.ToolTip(self.l311,
                         "Choose an ASCII file where the 1st and 2nd columns \
                         are the start and end timestamps of the period to be \
@@ -490,23 +479,21 @@ class ccn_processing(ttk.Frame):
 
 
         self.f32 = ttk.LabelFrame(self.f3, text='Flow calibration')
-        self.f32.pack(pady=5,padx=10, fill='x')
+        self.f32.pack(pady=5, padx=10, fill='x')
 
-        self.f321 = tk.LabelFrame(self.f32,
-                    text='Select file with flow calibration data (optional)')
-        self.f321.pack(pady=5,padx=10, fill='x')
+        self.f321 = tk.LabelFrame(self.f32, text='Select file with flow calibration data (optional)')
+        self.f321.pack(pady=5, padx=10, fill='x')
 
         self.tb3 = tk.Entry(self.f321, width=45)
-        self.tb3.pack(pady=5,padx=10, side=tk.LEFT)
+        self.tb3.pack(pady=5, padx=10, side=tk.LEFT)
         self.b321 = tk.Button(self.f321,
-                         text = "Browse",
-                         command = self.ask_flowcal_file
-                         )
-        self.b321.pack(pady=5,padx=10, side=tk.LEFT)
+                              text="Browse",
+                              command=self.ask_flowcal_file)
+        self.b321.pack(pady=5, padx=10, side=tk.LEFT)
 
         # Create help tooltip
-        self.l321 = tk.Label(self.f321,text = u'\u2754')
-        self.l321.pack(pady=5,side=tk.LEFT)
+        self.l321 = tk.Label(self.f321, text=u'\u2754')
+        self.l321.pack(pady=5, side=tk.LEFT)
         ToolTip.ToolTip(self.l321,
                         "Choose an ASCII file where the 1st column is the  \
                         timestamp of the flow measurement, and the second \
@@ -514,90 +501,84 @@ class ccn_processing(ttk.Frame):
                         L/min or LPM")
 
 
-        self.lb_flow_rate_set = tk.Label(self.f32,text="Set flow rate (LPM)")
-        self.tb_flow_rate_set = tk.Entry(self.f32, width = 10)
-        self.tb_flow_rate_set.insert(tk.END,0.5)
-        self.lb_flow_rate_set.pack(pady=5,padx=10, side=tk.LEFT)
-        self.tb_flow_rate_set.pack(pady=5,padx=10, side=tk.LEFT)
+        self.lb_flow_rate_set = tk.Label(self.f32, text="Set flow rate (LPM)")
+        self.tb_flow_rate_set = tk.Entry(self.f32, width=10)
+        self.tb_flow_rate_set.insert(tk.END, 0.5)
+        self.lb_flow_rate_set.pack(pady=5, padx=10, side=tk.LEFT)
+        self.tb_flow_rate_set.pack(pady=5, padx=10, side=tk.LEFT)
         self.lb_flow_rate_set.place(relx=0.02, rely=0.55)
         self.tb_flow_rate_set.place(relx=0.52, rely=0.55)
 
 
-        self.lb_flow_rate_fit = tk.Label(self.f32,
-                                    text="Polynomial degree for flow rate fit")
-        self.tb_flow_rate_fit = tk.Entry(self.f32, width = 10)
-        self.tb_flow_rate_fit.insert(tk.END,2)
-        self.lb_flow_rate_fit.pack(pady=5,padx=10, side=tk.LEFT)
-        self.tb_flow_rate_fit.pack(pady=5,padx=10, side=tk.LEFT)
+        self.lb_flow_rate_fit = tk.Label(self.f32, text="Polynomial degree for flow rate fit")
+        self.tb_flow_rate_fit = tk.Entry(self.f32, width=10)
+        self.tb_flow_rate_fit.insert(tk.END, 2)
+        self.lb_flow_rate_fit.pack(pady=5, padx=10, side=tk.LEFT)
+        self.tb_flow_rate_fit.pack(pady=5, padx=10, side=tk.LEFT)
         self.lb_flow_rate_fit.place(relx=0.02, rely=0.8)
         self.tb_flow_rate_fit.place(relx=0.52, rely=0.8)
 
 
-
-
-        self.f322 = ttk.LabelFrame(self.f3,
-                text='Supersaturation calibration for atmospheric pressure')
-        self.f322.pack(pady=5,padx=10, fill='x')
+        self.f322 = ttk.LabelFrame(self.f3, text='Supersaturation calibration for atmospheric pressure')
+        self.f322.pack(pady=5, padx=10, fill='x')
 
         self.lb322 = tk.Label(self.f322,
-                      text = """Corrects reported SS for changes \
+                              text = """Corrects reported SS for changes \
 in atm. pressure between cal. site & measurement site. If \
 calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
  hPa."""
-                      ,wraplength=350,
-                      )
+                      ,wraplength=350, )
         self.lb322.pack(pady=5,padx=10)
 
         self.correct4pressure = tk.IntVar()
         self.cb_pressCal = tk.Checkbutton(self.f322,
-                                          text = 'Correct for pressure',
-                                          variable = self.correct4pressure,
-                                          onvalue = 1, offvalue = 0,
-                                          command = self.grey_press_input)
+                                          text='Correct for pressure',
+                                          variable=self.correct4pressure,
+                                          onvalue=1, offvalue=0,
+                                          command=self.grey_press_input)
         self.cb_pressCal.select()
         self.cb_pressCal.pack(pady=5, padx=10)
 
-        self.f3221 = tk.LabelFrame(self.f322,text='Cal. Pressure')
-        self.tb_calPress = tk.Entry(self.f3221, width = 5)
-        self.tb_calPress.insert(tk.END,830)
-        self.lb_units1 = tk.Label(self.f3221,text='hPa')
+        self.f3221 = tk.LabelFrame(self.f322, text='Cal. Pressure')
+        self.tb_calPress = tk.Entry(self.f3221, width=5)
+        self.tb_calPress.insert(tk.END, 830)
+        self.lb_units1 = tk.Label(self.f3221, text='hPa')
 
-        self.f3221.pack(pady=5,padx=40, side=tk.LEFT, fill='x')
-        self.tb_calPress.pack(pady=5,padx=10, side=tk.LEFT)
-        self.lb_units1.pack(pady=5,padx=10, side=tk.LEFT)
+        self.f3221.pack(pady=5, padx=40, side=tk.LEFT, fill='x')
+        self.tb_calPress.pack(pady=5, padx=10, side=tk.LEFT)
+        self.lb_units1.pack(pady=5, padx=10, side=tk.LEFT)
 
-        self.f3222 = tk.LabelFrame(self.f322,text='Meas. Pressure')
-        self.tb_measPress = tk.Entry(self.f3222, width = 5)
-        self.tb_measPress.insert(tk.END,1010)
-        self.lb_units2 = tk.Label(self.f3222,text='hPa')
+        self.f3222 = tk.LabelFrame(self.f322, text='Meas. Pressure')
+        self.tb_measPress = tk.Entry(self.f3222, width=5)
+        self.tb_measPress.insert(tk.END, 1010)
+        self.lb_units2 = tk.Label(self.f3222, text='hPa')
 
-        self.f3222.pack(pady=5,padx=40, side=tk.RIGHT)
-        self.tb_measPress.pack(pady=5,padx=10, side=tk.LEFT)
-        self.lb_units2.pack(pady=5,padx=10, side=tk.RIGHT)
+        self.f3222.pack(pady=5, padx=40, side=tk.RIGHT)
+        self.tb_measPress.pack(pady=5, padx=10, side=tk.LEFT)
+        self.lb_units2.pack(pady=5, padx=10, side=tk.RIGHT)
 
 
         self.plotresults = tk.IntVar()
         self.cb_plot = tk.Checkbutton(self.f3,
-                                      text = 'Plot after each step',
-                                      variable = self.plotresults,
-                                      onvalue = True, offvalue = False)
+                                      text='Plot after each step',
+                                      variable=self.plotresults,
+                                      onvalue=True, offvalue=False)
         self.cb_plot.pack()
 
         # Create go button!
         self.bt_go = tk.Button(self.f3,
-                       text='GO!',
-                       command=self.load_and_process,
-                       background='forest green',
-                       foreground='white',
-                       font = 'Times 18 bold',
-                       width = 15)
+                               text='GO!',
+                               command=self.load_and_process,
+                               background='forest green',
+                               foreground='white',
+                               font='Times 18 bold',
+                               width=15)
         self.bt_go.pack()
         self.bt_go.place(rely=0.89, relx=0.25)
-
-        self.f31.place(relx=0.01,rely=0.01,relheight=0.21,relwidth=0.98)
-        self.f32.place(relx=0.01,rely=0.22,relheight=0.26,relwidth=0.98)
-        self.f322.place(relx=0.01,rely=0.5,relheight=0.33,relwidth=0.98)
-        self.cb_plot.place(relx=0.3,rely=0.83)
+        self.f31.place(relx=0.01, rely=0.01, relheight=0.21, relwidth=0.98)
+        self.f32.place(relx=0.01, rely=0.22, relheight=0.26, relwidth=0.98)
+        self.f322.place(relx=0.01, rely=0.5, relheight=0.33, relwidth=0.98)
+        self.cb_plot.place(relx=0.3, rely=0.83)
 
 ##-----------------------------------------------------------
 ## Variable check window
@@ -609,13 +590,10 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
         txt = tk.Message(self.top,
                          text=message,
                          justify=tk.CENTER,
-                         width = 300)
+                         width=300)
         txt.pack(fill='x')
 
-        bt_ok = tk.Button(self.top,
-                          text="OK",
-                          command=self.dismiss
-                          )
+        bt_ok = tk.Button(self.top, text="OK", command=self.dismiss)
         bt_ok.pack(side=tk.BOTTOM)
 
     def dismiss(self):
@@ -631,59 +609,47 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
         self.w_netcdf_input.geometry("300x310")
 
         self.w_netcdf_input.description = tk.Label(self.w_netcdf_input,
-                text = 'Please provide descriptions (global attributes) to be \
+                text='Please provide descriptions (global attributes) to be \
                 included in the self-describing NetCDF file \n',
                 wraplength=300)
         self.w_netcdf_input.description.pack()
 
         text = 'Dataset title'
-        self.nc_l0 = tk.Label(self.w_netcdf_input,
-                                          text = text,
-                                          wraplength = 200)
+        self.nc_l0 = tk.Label(self.w_netcdf_input, text=text, wraplength=200)
         self.nc_l0.pack()
-        self.nc_e0 = tk.Entry(self.w_netcdf_input,width = 200)
+        self.nc_e0 = tk.Entry(self.w_netcdf_input, width=200)
         self.nc_e0.pack()
 
         text = 'Dataset description'
-        self.nc_l1 = tk.Label(self.w_netcdf_input,
-                                          text = text,
-                                          wraplength = 200)
+        self.nc_l1 = tk.Label(self.w_netcdf_input, text=text, wraplength=200)
         self.nc_l1.pack()
-        self.nc_e1 = tk.Entry(self.w_netcdf_input,width = 200)
+        self.nc_e1 = tk.Entry(self.w_netcdf_input, width=200)
         self.nc_e1.pack()
 
         text = 'Author of dataset'
-        self.nc_l2 = tk.Label(self.w_netcdf_input,
-                                          text = text,
-                                          wraplength = 200)
+        self.nc_l2 = tk.Label(self.w_netcdf_input, text=text, wraplength=200)
         self.nc_l2.pack()
-        self.nc_e2 = tk.Entry(self.w_netcdf_input,width = 200)
+        self.nc_e2 = tk.Entry(self.w_netcdf_input, width=200)
         self.nc_e2.pack()
 
         text = 'Institution where dataset is produced'
-        self.nc_l3 = tk.Label(self.w_netcdf_input,
-                                          text = text,
-                                          wraplength = 200)
+        self.nc_l3 = tk.Label(self.w_netcdf_input, text=text, wraplength=200)
         self.nc_l3.pack()
-        self.nc_e3 = tk.Entry(self.w_netcdf_input,width = 200)
+        self.nc_e3 = tk.Entry(self.w_netcdf_input, width=200)
         self.nc_e3.pack()
 
         text = 'Comment'
-        self.nc_l4 = tk.Label(self.w_netcdf_input,
-                                          text = text,
-                                          wraplength = 200)
+        self.nc_l4 = tk.Label(self.w_netcdf_input, text=text, wraplength=200)
         self.nc_l4.pack()
-        self.nc_e4 = tk.Entry(self.w_netcdf_input,width = 50)
+        self.nc_e4 = tk.Entry(self.w_netcdf_input, width=50)
         self.nc_e4.pack()
 
-        self.w_netcdf_input.spacer = tk.Label(self.w_netcdf_input,
-                                          text = ''
-                                          ).pack()
+        self.w_netcdf_input.spacer = tk.Label(self.w_netcdf_input, text='').pack()
 
         self.nc_bt_ok = tk.Button(self.w_netcdf_input,
-                          text="OK",
-                          width = 30,
-                          command=self.close_netcdf_window)
+                                  text="OK",
+                                  width=30,
+                                  command=self.close_netcdf_window)
         self.nc_bt_ok.pack()
 
 ##-----------------------------------------------------------
@@ -696,8 +662,8 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
 
         self.w_status.txt_status = tk.Text(self.w_status, wrap='word')
         self.w_status.sb_status = tk.Scrollbar(self.w_status)
-        self.w_status.txt_status.pack(pady=5, side=tk.LEFT,fill='both', expand=True)
-        self.w_status.sb_status.pack(pady=5,side=tk.LEFT, fill='y')
+        self.w_status.txt_status.pack(pady=5, side=tk.LEFT, fill='both', expand=True)
+        self.w_status.sb_status.pack(pady=5, side=tk.LEFT, fill='y')
 
         # Attach listbox to scrollbar
         self.w_status.txt_status.config(yscrollcommand=self.w_status.sb_status.set)
@@ -712,8 +678,8 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
 #        bt_interupt.pack(pady=10, side=tk.BOTTOM)
 
         self.w_status.txt_status.tag_configure("stderr", foreground="#b22222")
-        sys.stdout = TextRedirector(self.w_status.txt_status,"stdout")
-        sys.stderr = TextRedirector(self.w_status.txt_status,"stderr")
+        sys.stdout = TextRedirector(self.w_status.txt_status, "stdout")
+        sys.stderr = TextRedirector(self.w_status.txt_status, "stderr")
 
 #    def interupt(self):
 #        '''
@@ -757,7 +723,7 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
         self.w_finished.title("All finished")
         self.w_finished.geometry("300x100")
         txt = tk.Message(self.w_finished,
-                         text = "Processing of CCNC data complete!",
+                         text="Processing of CCNC data complete!",
                          justify=tk.CENTER,
                          width=300)
         txt.pack()
