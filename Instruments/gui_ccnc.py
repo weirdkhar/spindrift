@@ -218,12 +218,10 @@ class ccn_processing(ttk.Frame):
         self.t_outputPath.delete(0, tk.END)
         self.t_outputPath.insert(tk.END, self.output_path)
 
-
     def grey_press_input(self):
         '''
         Disables input into the pressure fields if the checkbox isn't ticked.
         '''
-
         if self.correct4pressure.get() == 0:
             self.tb_calPress.configure(state='disabled')
             self.tb_measPress.configure(state='disabled')
@@ -260,7 +258,6 @@ class ccn_processing(ttk.Frame):
         self.master.geometry("880x560")
         self.isapp = isapp
         self._build_widgets()
-
 
     def _build_widgets(self):
         global mainFrame
@@ -302,7 +299,6 @@ class ccn_processing(ttk.Frame):
         # Attach listbox to scrollbar
         self.lb_openFiles.config(yscrollcommand=self.sb_openFiles.set)
         self.sb_openFiles.config(command=self.lb_openFiles.yview)
-
 
         # Create forceReload check button
         self.forceReload = tk.IntVar()

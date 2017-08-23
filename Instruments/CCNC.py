@@ -72,26 +72,26 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("raw_path", help="path where raw data exists")
     parser.add_argument("-o", "--output_path", help="path where output data\
-                                files are written")
+                        files are written")
     parser.add_argument("-ext", "--output_file_extension", help="Extension of \
-                                the output filetype. Options include 'hdf', \
-                                'h5' or 'netcdf'", default='hdf')
+                        the output filetype. Options include 'hdf', \
+                        'h5' or 'netcdf'", default='hdf')
     parser.add_argument("-res", "--output_time_resolution", help="time  \
-                                resolution of output data. Default 1 second",
-                                default='1S')
-    parser.add_argument("-q", "--QCdata",help="Boolean specifying whether to \
-                                perform QC actions on data. Default false",
-                                default=False, type=bool)
+                        resolution of output data. Default 1 second",
+                        default='1S')
+    parser.add_argument("-q", "--QCdata", help="Boolean specifying whether to \
+                        perform QC actions on data. Default false",
+                        default=False, type=bool)
     parser.add_argument("--flow_cal_file", help="file containing datetimes and\
-                                flow data for flow calibrations. This file \
-                                must be in the same folder as the raw data.")
+                        flow data for flow calibrations. This file \
+                        must be in the same folder as the raw data.")
     parser.add_argument("--output_file_frequency", help="describes how output \
-                                data is broken up for memory management. \
-                                Options are 'monthly','weekly','daily' or \
-                                'all'", default='all')
+                        data is broken up for memory management. \
+                        Options are 'monthly','weekly','daily' or 'all'",
+                        default='all')
     parser.add_argument("-r", "--reload_from_source", help="forces reloading\
-                                data from source csv files rather than loading\
-                                from concatenated data. Boolean", default=True)
+                        data from source csv files rather than loading\
+                        from concatenated data. Boolean", default=True)
     parser.add_argument("--atmos_press", help="specify atmospheric pressure of \
                         measurement location for supersaturation correction. ",
                         default=1010)
@@ -129,13 +129,13 @@ def main():
         print('Output data path does not exist. Creating new folder in:')
         print(ccn_output_data_path)
 
-    assert ccn_output_filetype.lower() in ['netcdf','h5','hdf'], \
+    assert ccn_output_filetype.lower() in ['netcdf', 'h5', 'hdf'], \
         "output filetype invalid! Please use either 'netcdf', 'h5', or 'hdf'"
 
-    if output_time_resolution not in ['--1S','--5S','--10S','--15S','--30S',
-                                      '--1M','--2M','--5M','--10M','--15M',
-                                      '--20M','--30M','--1H','--2H','--3H',
-                                      '--6H','--8H','--12H','--1D']:
+    if output_time_resolution not in ['--1S', '--5S', '--10S', '--15S', '--30S',
+                                      '--1M', '--2M', '--5M', '--10M', '--15M',
+                                      '--20M', '--30M', '--1H', '--2H', '--3H',
+                                      '--6H', '--8H', '--12H', '--1D']:
         output_time_resolution = '--1S'
         print('No valid output time resolution given, no time resampling applied')
     output_time_resolution = output_time_resolution[2:] # remove the '--'
@@ -222,7 +222,8 @@ def LoadAndProcess(ccn_raw_path=None,
         raw_filelist = get_raw_filelist(ccn_output_path,
                                         ccn_output_filetype,
                                         substring='raw')
-    elif load_from_filetype in ['h5','hdf']:
+
+    elif load_from_filetype in ['h5', 'hdf']:
         if input_filelist is None:
             raw_filelist = get_raw_filelist(ccn_raw_path,
                                             load_from_filetype,
@@ -236,7 +237,7 @@ def LoadAndProcess(ccn_raw_path=None,
         if os.path.isfile(file):
             ccn_data = load_ccn(ccn_raw_path,
                                 load_from_filetype,
-                                filepath = file)
+                                filepath=file)
         else:
             if load_from_filetype == "csv":
                 ccn_data = load_ccn(ccn_output_path,
@@ -247,29 +248,27 @@ def LoadAndProcess(ccn_raw_path=None,
                                     load_from_filetype,
                                     substring=file)
 
-        plot_me(ccn_data, plot_each_step,'CCN Number Conc','raw')
+        plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'raw')
 
         # Calculate CCN counting uncertainty
-        ccn_data = uncertainty_calc(ccn_data,
-                                    1,
-                                    np.sqrt(ccn_data['CCN Number Conc']))
+        ccn_data = uncertainty_calc(ccn_data, 1, np.sqrt(ccn_data['CCN Number Conc']))
 
         # QC data for internal parameters and for changes in SS
         if QC:
             ccn_data = DataQC(ccn_data)
-            save_as(ccn_data,ccn_output_path,'QC',ccn_output_filetype, file)
+            save_as(ccn_data, ccn_output_path, 'QC', ccn_output_filetype, file)
 
-        plot_me(ccn_data, plot_each_step,'CCN Number Conc', 'QC')
+        plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'QC')
 
         # Perform flow calibration if data is provided
         if flow_cal_file is not None:
             ccn_data = flow_cal(ccn_data,
                                 flow_cal_file,
                                 ccn_raw_path,
-                                set_flow_rate = flow_setpt,
+                                set_flow_rate=flow_setpt,
                                 polydeg=flow_polyDeg)
-            save_as(ccn_data,ccn_output_path,'flowCal',ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step,'CCN Number Conc','flow cal')
+            save_as(ccn_data, ccn_output_path, 'flowCal', ccn_output_filetype, file)
+            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'flow cal')
         elif flow_cal_df is not None:
             ccn_data = flow_cal(ccn_data,
                                 measured_flows_df=flow_cal_df,
@@ -277,11 +276,11 @@ def LoadAndProcess(ccn_raw_path=None,
                                 polydeg=flow_polyDeg)
 
             save_as(ccn_data, ccn_output_path, 'flowCal', ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step, 'CCN Number Conc','flow cal')
+            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'flow cal')
 
         # Calibrate supersaturation
         ccn_data = ss_cal(ccn_data, press_meas, press_cal)
-        save_as(ccn_data,ccn_output_path,'ssCal',ccn_output_filetype, file)
+        save_as(ccn_data, ccn_output_path, 'ssCal', ccn_output_filetype, file)
 
 
         # Correct for inlet losses #xkcd
@@ -292,15 +291,13 @@ def LoadAndProcess(ccn_raw_path=None,
 
         # Filter for logged events
         if mask_period_file is not None:
-            ccn_data = atmoscripts.log_filter(ccn_data,
-                                              ccn_raw_path,mask_period_file)
-            save_as(ccn_data,ccn_output_path,'logFilt',ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step,'CCN Number Conc','log filter')
+            ccn_data = atmoscripts.log_filter(ccn_data, ccn_raw_path, mask_period_file)
+            save_as(ccn_data, ccn_output_path, 'logFilt', ccn_output_filetype, file)
+            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'log filter')
         elif mask_period_timestamp_df is not None:
-            ccn_data = atmoscripts.log_filter(ccn_data,
-                                        log_mask_df=mask_period_timestamp_df)
-            save_as(ccn_data,ccn_output_path,'logFilt',ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step,'CCN Number Conc','log filter')
+            ccn_data = atmoscripts.log_filter(ccn_data, log_mask_df=mask_period_timestamp_df)
+            save_as(ccn_data, ccn_output_path, 'logFilt', ccn_output_filetype, file)
+            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'log filter')
 
 
         # Filter for exhaust #xkcd
@@ -310,16 +307,17 @@ def LoadAndProcess(ccn_raw_path=None,
 
         # Separate into different supersaturations
         ccn_data = ss_split(ccn_data, split_by_supersaturation)
-        save_as(ccn_data,ccn_output_path,'ssSplit',ccn_output_filetype,file)
-        plot_me(ccn_data, plot_each_step,None,'SS Split')
+        save_as(ccn_data, ccn_output_path, 'ssSplit', ccn_output_filetype, file)
+        plot_me(ccn_data, plot_each_step, None, 'SS Split')
 
         # Resample timebase and calculate uncertainties
-        ccn_data = timebase_resampler(ccn_data,time_int=output_time_resolution,
-                          split_by_supersaturation = split_by_supersaturation,
-                          input_h5_filename = file,
-                          output_filetype = ccn_output_filetype,
-                          gui_mode=gui_mode,
-                          gui_mainloop = gui_mainloop)
+        ccn_data = timebase_resampler(ccn_data,
+                                      time_int=output_time_resolution,
+                                      split_by_supersaturation=split_by_supersaturation,
+                                      input_h5_filename=file,
+                                      output_filetype=ccn_output_filetype,
+                                      gui_mode=gui_mode,
+                                      gui_mainloop=gui_mainloop)
 
     if os.path.isfile('netcdf_global_attributes.temp'):
         os.remove('netcdf_global_attributes.temp')
@@ -364,11 +362,10 @@ def check_file(fname):
 ### File IO
 ###############################################################################
 
-def load_ccn(data_path = None,
-             filetype = None,
-             substring = None,
-             filepath = None
-             ):
+def load_ccn(data_path=None,
+             filetype=None,
+             substring=None,
+             filepath=None):
     '''
     Loads data from concatenated data file.
 
@@ -396,34 +393,30 @@ def load_ccn(data_path = None,
         print('Load filetype coerced in load_ccn function')
 
 
-    if filetype in ['hdf','h5']:
+    if filetype in ['hdf', 'h5']:
         data = pd.read_hdf(fname, key='ccn')
 
-    elif filetype in ['netcdf','nc']:
+    elif filetype in ['netcdf', 'nc']:
         # xkcd
-        data =atmoscripts.read_netcdf(fname, data_path)
+        data = atmoscripts.read_netcdf(fname, data_path)
 
     elif filetype == 'csv':
         data = pd.read_csv(fname,
-                           skipinitialspace = True,
+                           skipinitialspace=True,
                            index_col=0,
                            parse_dates=True,
                            infer_datetime_format=True)
     return data
 
-
-
-def Load_to_HDF(
-                RawDataPath = None,
+def Load_to_HDF(RawDataPath=None,
                 DestDataPath=None,
-                output_h5_filename = 'CCNC',
-                resample_timebase = None,
-                concat_file_frequency = 'all',
-                input_filelist = None,
-                output_filetype = 'h5',
+                output_h5_filename='CCNC',
+                resample_timebase=None,
+                concat_file_frequency='all',
+                input_filelist=None,
+                output_filetype='h5',
                 gui_mode=False,
-                gui_mainloop = None
-                ):
+                gui_mainloop=None):
     '''
 	Load data from CSV files, concatenate and write to h5 file
     '''
@@ -480,19 +473,18 @@ def Load_to_HDF(
         periods.sort()
         for i in range(0, len(periods)):
             output_h5_filename_ = output_h5_filename + '_' + str(periods[i])
-            filelist_ = list(filelist_df[
-                    filelist_df['id'] == periods[i]]['filenames'])
+            filelist_ = list(filelist_df[filelist_df['id'] == periods[i]]['filenames'])
 
             save_ccn_to_hdf(filelist_, output_h5_filename_,
                             resample_timebase,
-                            output_filetype = output_filetype,
+                            output_filetype=output_filetype,
                             gui_mode=gui_mode,
-                            gui_mainloop = gui_mainloop)
+                            gui_mainloop=gui_mainloop)
     else:
         save_ccn_to_hdf(filelist, output_h5_filename, resample_timebase,
-                        output_filetype = output_filetype,
+                        output_filetype=output_filetype,
                         gui_mode=gui_mode,
-                        gui_mainloop = gui_mainloop)
+                        gui_mainloop=gui_mainloop)
 ############################################
     # If no destination path given, write files in raw data path, otherwise
     # move to destination path
@@ -513,8 +505,7 @@ def Load_to_NonHDF(RawDataPath,
     '''
     Do all the processing in HDF, then save the final product as netcdf or csv
     '''
-    assert output_file_format in ['csv','netcdf','nc'],'Choose either netcdf \
-                                                        or csv file format!'
+    assert output_file_format in ['csv', 'netcdf', 'nc'], 'Choose either netcdf or csv file format!'
 
     # Load the data quickly via hdf
     base_fname = Load_to_HDF(RawDataPath=RawDataPath,
@@ -567,10 +558,10 @@ def Load_to_CSV(RawDataPath,
 
 def save_as(data,
             save_path,
-            filename_appendage = '',
+            filename_appendage='',
             filetype='hdf',
-            fname_current = None
-            ):
+            fname_current=None):
+
     '''
     Saves data to file, reading the original filename, and appending informative
     text to the filename.
@@ -578,14 +569,14 @@ def save_as(data,
     CCN.h5 becomes CCN_QC.h5
     CCN.netcdf becomes CCN_QC_flowcal.netcdf
     '''
-    assert filetype in ['hdf','h5','netcdf','nc','csv'], "Don't recognise \
+    assert filetype in ['hdf', 'h5', 'netcdf', 'nc', 'csv'], "Don't recognise \
                         filetype to save to. Please use hdf, h5, netcdf or csv"
     assert save_path is not None, 'You must specify the directory where you \
                         want to save!'
     os.chdir(save_path)
 
 
-    if filetype in ['hdf','h5']:
+    if filetype in ['hdf', 'h5']:
         fname = get_ccn_filenamebase('h5', filename_appendage, fname_current)
         if data is None:
             print("CHECK HERE!")
@@ -595,7 +586,7 @@ def save_as(data,
         except:
             print("NO! CHECK HERE!")
 
-    elif filetype in ['netcdf','nc']:
+    elif filetype in ['netcdf', 'nc']:
         # Get the filename of the most recently created file
         fname = get_ccn_filenamebase('nc', filename_appendage, fname_current)
 
@@ -611,16 +602,16 @@ def save_as(data,
     return
 
 def save_ccn_to_hdf(filelist, output_h5_filename,
-                    resample_timebase = None,
-                    output_filetype = 'h5',
+                    resample_timebase=None,
+                    output_filetype='h5',
                     gui_mode=False,
-                    gui_mainloop = None):
+                    gui_mainloop=None):
 
     #If previous file exists, append, if not start new
     if os.path.isfile(output_h5_filename +'.h5'):
 
-        files_already_loaded = atmoscripts.read_filelist_from_file(
-                                                        'files_loaded.txt')
+        files_already_loaded = atmoscripts.read_filelist_from_file('files_loaded.txt')
+
         #with open('files_loaded.txt', 'rb') as f:
         #    files_already_loaded = pickle.load(f)
 
@@ -631,7 +622,7 @@ def save_ccn_to_hdf(filelist, output_h5_filename,
 
         data_new, fname_current = read_ccn_csv(filelist)
 
-        data = pd.read_hdf(output_h5_filename +'.h5',key='ccn')
+        data = pd.read_hdf(output_h5_filename +'.h5', key='ccn')
 
         data = data.append(data_new)
 
@@ -660,10 +651,10 @@ def save_ccn_to_hdf(filelist, output_h5_filename,
     atmoscripts.write_filelist_to_file(filelist, 'files_loaded.txt')
 
     if resample_timebase is not None:
-        timebase_resampler(data, time_int = resample_timebase,
-                           output_filetype = output_filetype,
+        timebase_resampler(data, time_int=resample_timebase,
+                           output_filetype=output_filetype,
                            gui_mode=gui_mode,
-                           gui_mainloop = gui_mainloop)
+                           gui_mainloop=gui_mainloop)
 
     return
 
@@ -717,7 +708,7 @@ def concatenate_from_csv(CCN_raw_path,
     '''
     os.chdir(CCN_output_path)
 
-    if CCN_output_filetype in ['netcdf','nc','csv']:
+    if CCN_output_filetype in ['netcdf', 'nc', 'csv']:
         filelist_empty = check_filelist('.'+CCN_output_filetype, reload_from_source)
         if filelist_empty:
             Load_to_NonHDF(RawDataPath=CCN_raw_path,
@@ -780,54 +771,54 @@ def read_ccn_csv(filelist):
         else:
             i1 = (j+1)*filelim
 
-        #Initialise
+        # Initialise
         fname_current = None
         data = pd.read_csv(filelist[0],
-                            names = colnames,
-                            skiprows = range(0,6),
-                            engine='python',
-                            skipinitialspace = True,
-                            usecols=range(49)
-                            )
+                           names=colnames,
+                           skiprows=range(0, 6),
+                           engine='python',
+                           skipinitialspace=True,
+                           usecols=range(49))
+
         # Read date from csv file
-        data['date'] = str(pd.read_csv(filelist[0], names = ['label', 'date'],
-                            skiprows = range(2,len(data)+6))['date'][1])
+        data['date'] = str(pd.read_csv(filelist[0], names=['label', 'date'],
+                                       skiprows=range(2, len(data)+6))['date'][1])
 
         print("Reading " + str(filelist[0]))
         for i in range(i0, i1):
-                print("Reading " + str(filelist[i]))
-                # Load csv data
-                data_temp = pd.read_csv(filelist[i],
-                            names = colnames,
-                            skiprows = range(0,6),
-                            engine='python',
-                            skipinitialspace = True,
-                            usecols=range(49)
-                            )
-                # Read date from csv file
-                data_temp['date'] = str(pd.read_csv(filelist[i],
-                                        names = ['label', 'date'], skiprows =
-                                        range(2,len(data)+6))['date'][1])
+            print("Reading " + str(filelist[i]))
+            # Load csv data
+            data_temp = pd.read_csv(filelist[i],
+                                    names=colnames,
+                                    skiprows=range(0, 6),
+                                    engine='python',
+                                    skipinitialspace=True,
+                                    usecols=range(49))
 
-                #Append new csv file data to existing dataframe
-                data = data.append(data_temp)#, ignore_index=True)
+            # Read date from csv file
+            data_temp['date'] = str(pd.read_csv(filelist[i],
+                                                names=['label', 'date'],
+                                                skiprows=range(2, len(data)+6))['date'][1])
 
-                # Save new data to file
-                fname_current = 'CCNC_noIndex_temp_'+str(i0)+'to'+str(i+2)+\
-                                'of'+str(len(filelist)+1)+'.h5'
-                data.to_hdf(fname_current, key='ccn')
-                # Remove the temporary file
-                if os.path.isfile(fname_previous):
-                    try:
-                        os.remove(fname_previous)
-                    except PermissionError:
-                        delete_temp_files_manually = True
-                        temp_files_to_del.append(fname_previous)
-                fname_previous = fname_current
+            #Append new csv file data to existing dataframe
+            data = data.append(data_temp)#, ignore_index=True)
+
+            # Save new data to file
+            fname_current = 'CCNC_noIndex_temp_'+str(i0)+'to'+str(i+2)+\
+                            'of'+str(len(filelist)+1)+'.h5'
+            data.to_hdf(fname_current, key='ccn')
+            # Remove the temporary file
+            if os.path.isfile(fname_previous):
+                try:
+                    os.remove(fname_previous)
+                except PermissionError:
+                    delete_temp_files_manually = True
+                    temp_files_to_del.append(fname_previous)
+            fname_previous = fname_current
 
         # Create timstamp from date and time columns
         data['timestamp'] = pd.to_datetime(data['date']+' '+data['Time'],
-                                            format = "%m/%d/%y %H:%M:%S")
+                                           format="%m/%d/%y %H:%M:%S")
 
 
         # Drop any duplicates which may be there, based only on the Timestamp
@@ -864,7 +855,7 @@ def read_ccn_csv(filelist):
 
     # Clean up any files that couldnt be deleted due to being locked previously
     if delete_temp_files_manually:
-        for k in range(0,len(temp_files_to_del)):
+        for k in range(0, len(temp_files_to_del)):
             os.remove(temp_files_to_del[k])
 
     return data, fname_current
@@ -939,7 +930,7 @@ def load_basic_csv(filename=None, path=None, file_FULLPATH=None):
     assert os.path.isfile(file_FULLPATH), \
             'Flow cal file does not exists! Exiting'
 
-    df = pd.read_csv(file_FULLPATH, delimiter = ',')
+    df = pd.read_csv(file_FULLPATH, delimiter=',')
 
     return df
 
@@ -947,7 +938,7 @@ def load_basic_csv(filename=None, path=None, file_FULLPATH=None):
 #-----------------------------
 # This function is unused
 #-----------------------------
-def load_manual_mask(filename = None, path = None, file_FULLPATH=None):
+def load_manual_mask(filename=None, path=None, file_FULLPATH=None):
     '''
     Loads manual mask data (i.e. start & end timestamps and event description)
     from file. There is an assumption that the mask file (in csv) has
@@ -958,7 +949,7 @@ def load_manual_mask(filename = None, path = None, file_FULLPATH=None):
     df = load_basic_csv(filename, path, file_FULLPATH)
     return df
 
-def load_flow_cals(filename = None, path = None, file_FULLPATH=None):
+def load_flow_cals(filename=None, path=None, file_FULLPATH=None):
     '''
     Loads flow calibration data (i.e. timestamps and flow from flow checks)
     from file. There is an assumption that the calibration file (in csv) has
@@ -979,22 +970,21 @@ def get_week_label(filelist):
     dates = [f[13:19] if '_' in f[-16:-10] else f[-16:-10] for f in filelist]
 
     weeknum = [str(datetime.date(
-                        2000+int(day[0:2]),
-                        int(day[2:4]),
-                        int(day[4:6])).isocalendar()[1])
-                if datetime.date(
-                        2000+int(day[0:2]),
-                        int(day[2:4]),
-                        int(day[4:6])).isocalendar()[1] >= 10 \
+                   2000+int(day[0:2]),
+                   int(day[2:4]),
+                   int(day[4:6])).isocalendar()[1])
+                if datetime.date(2000+int(day[0:2]),
+                                 int(day[2:4]),
+                                 int(day[4:6])).isocalendar()[1] >= 10 \
                 else ('0'+str(datetime.date(
                         2000+int(day[0:2]),
                         int(day[2:4]),
-                        int(day[4:6])).isocalendar()[1])) \
-                for day in dates]
-    year = [str(datetime.date(2000+int(day[0:2]),int(day[2:4]),
-               int(day[4:6])).isocalendar()[0]) for day in dates]
+                        int(day[4:6])).isocalendar()[1])) for day in dates]
+
+    year = [str(datetime.date(2000+int(day[0:2]), int(day[2:4]),
+                              int(day[4:6])).isocalendar()[0]) for day in dates]
     #week_label = ['_wk' + str(s) for s in list(weeknum)]
-    week_label = [x+'_wk'+y for x,y in zip(year,weeknum)]
+    week_label = [x+'_wk'+y for x, y in zip(year, weeknum)]
     return week_label
 
 def get_day_label(filelist):
@@ -1057,7 +1047,7 @@ def get_ccn_filenamebase(ext, appendage, fname_current=None):
                 fname_current_base = fname_current.split('.')[0]
             fname_current_list = [f for f in filelist if fname_current_base in f]
             if len(fname_current_list) > 0:
-                fname_old = max(fname_current_list,key=os.path.getctime)
+                fname_old = max(fname_current_list, key=os.path.getctime)
                 fname_old = fname_old.split('.')
             else:
                 try:
@@ -1123,15 +1113,15 @@ def DataQC(CCN_data,
         # Flow ratio outside 10 +/- 0.4
         CCNC_data['Flow Ratio'] = \
                         CCNC_data['Sheath Flow'] / CCNC_data['Sample Flow']
-        CCNC_data.loc[CCNC_data['Flow Ratio'] > (FlowRatio + 2)]= np.nan
-        CCNC_data.loc[CCNC_data['Flow Ratio'] < (FlowRatio - 2)]= np.nan
+        CCNC_data.loc[CCNC_data['Flow Ratio'] > (FlowRatio + 2)] = np.nan
+        CCNC_data.loc[CCNC_data['Flow Ratio'] < (FlowRatio - 2)] = np.nan
 
         # Irrelevant SuperSaturation values
         CCNC_data.loc[CCNC_data['Current SS'] < 0] = np.nan
 
         # 80 < Laser current < 120
         CCNC_data.loc[CCNC_data['Laser Current'] > 120] = np.nan
-        CCNC_data.loc[CCNC_data['Laser Current'] <  80] = np.nan
+        CCNC_data.loc[CCNC_data['Laser Current'] < 80] = np.nan
 
         # 1st Stage Mon > 4.7 V
         CCNC_data.loc[CCNC_data['Laser Current'] > 120] = np.nan
@@ -1140,34 +1130,34 @@ def DataQC(CCN_data,
         CCNC_data.loc[abs(CCNC_data['T1 Set'] -                        \
                           CCNC_data['T1 Read']) > T1diffLim] = np.nan
         CCNC_data.loc[abs(CCNC_data['T2 Set'] -                        \
-                          CCNC_data['T2 Read']) > T2diffLim]= np.nan
+                          CCNC_data['T2 Read']) > T2diffLim] = np.nan
         CCNC_data.loc[abs(CCNC_data['T3 Set'] -                        \
-                          CCNC_data['T3 Read']) > T3diffLim]= np.nan
+                          CCNC_data['T3 Read']) > T3diffLim] = np.nan
         CCNC_data.loc[abs(CCNC_data['Nafion Set'] -                    \
-                          CCNC_data['T Nafion']) > NafionTdiffLim]= np.nan
+                          CCNC_data['T Nafion']) > NafionTdiffLim] = np.nan
         CCNC_data.loc[abs(CCNC_data['OPC Set'] -                       \
-                          CCNC_data['T OPC']) > 1]= np.nan
+                          CCNC_data['T OPC']) > 1] = np.nan
 
     return CCNC_data#, ReviewData)
 
 #-----------------------------
 # This function is unused
 #-----------------------------
-def filter_ccn_stat(data, std_lim = 150, removeData = False):
+def filter_ccn_stat(data, std_lim=150, removeData=False):
     '''
     Filters CCN based on statistical standard deviation filter.
     '''
     if removeData:
         data.loc[data['ccn_std'] > std_lim] = np.nan
     else:
-        data.loc[data['ccn_std'] > std_lim,'ccn_std_mask'] = np.nan
+        data.loc[data['ccn_std'] > std_lim, 'ccn_std_mask'] = np.nan
     return data
 
 def flow_cal(data,
-             flow_cal_filename = None,
-             flow_cal_path = None,
-             measured_flows_df = None,
-             set_flow_rate = 500, #ccm
+             flow_cal_filename=None,
+             flow_cal_path=None,
+             measured_flows_df=None,
+             set_flow_rate=500, #ccm
              polydeg=2):
     ''' Calibrates CPC_data for measured flow rates. Data input can either be
     an already loaded dataframe, or directions to the csv file which contains
@@ -1218,7 +1208,7 @@ def flow_cal(data,
                   degree polynomial. Please check input")
             polydeg = 2
     if type(polydeg) is not str:
-        fit = np.polyfit(x,y,deg=polydeg, full=True)
+        fit = np.polyfit(x, y, deg=polydeg, full=True)
         p = np.poly1d(fit[0])
         # Abs uncertainty is the RMS deviation of the regression
         sigma_abs = fit[1][0]
@@ -1232,7 +1222,7 @@ def flow_cal(data,
 
     # Rel uncertainty is abs divided by median of liniear regression
     sigma_divisor = p(x_data)
-    data = uncertainty_calc(data,sigma_abs,sigma_divisor)
+    data = uncertainty_calc(data, sigma_abs, sigma_divisor)
 
     return data
 
@@ -1248,7 +1238,7 @@ def ss_split(data, split_by_supersaturation=True):
 
         nan_only = True
 
-        d={} #Initialise
+        d = {} #Initialise
         for ss in ss_list:
             if not np.isnan(ss):
                 # Create a dictionary to store each separated SS
@@ -1262,7 +1252,7 @@ def ss_split(data, split_by_supersaturation=True):
                 split_data.columns = split_data.columns.get_level_values(0)
 
                 # Grab the uncertainty too:
-                uncert_cols = ['ccn_sigma','ccn_sigma_med','ccn_sigma_avg']
+                uncert_cols = ['ccn_sigma', 'ccn_sigma_med', 'ccn_sigma_avg']
                 for col in uncert_cols:
                     if col in data:
                         uncert = data[col]
@@ -1299,7 +1289,7 @@ def ss_transition_removal(data):
             timestamp0 = data.index[i]
             # Find timestamp of end of transition - set to n minutes after
             # change in set point
-            timestamp1= timestamp0 + datetime.timedelta(minutes=3)
+            timestamp1 = timestamp0 + datetime.timedelta(minutes=3)
             # Set data within the transition range to nan
             data[(data.index >= timestamp0) & (data.index < timestamp1)] = np.nan
 
@@ -1316,7 +1306,7 @@ def ss_transition_removal(data):
     del data['ss_remove']
     return data
 
-def ss_cal(ccn_data, atmos_press = 1010, cal_press = 830):
+def ss_cal(ccn_data, atmos_press=1010, cal_press=830):
     '''
     Calibrates the reported supersaturation level for pressure.
     '''
@@ -1327,7 +1317,7 @@ def ss_cal(ccn_data, atmos_press = 1010, cal_press = 830):
     if cal_press == None:
         cal_press = 830
         print("Assumed most recent calibration for the instrument was done in \
-              Boulder and so I've used 830 mbar as calibration pressure for supersaturation calibration")
+               Boulder and so I've used 830 mbar as calibration pressure for supersaturation calibration")
 
     ccn_data['Current SS'] = ccn_data['Current SS'] + 0.028 * (atmos_press - cal_press) / 100
 
@@ -1360,13 +1350,12 @@ def timebase_resampler(data=0,
 
     # define time resampling intervals unless specified in function input
     if time_int == 'default':
-        time_int = ['5S','1Min', '5Min', '10Min', \
-                    '30Min', '1H', '3H', '6H', '12H', '1D']
+        time_int = ['5S', '1Min', '5Min', '10Min', '30Min', '1H', '3H', '6H', '12H', '1D']
     elif type(time_int[0]) == bool:
 
-        gui_time_options = ['1S','5S','10S','15S','30S',
-                             '1Min','5Min','10Min','15Min','30Min',
-                             '1H','3H','6H','12H','1D']
+        gui_time_options = ['1S', '5S', '10S', '15S', '30S',
+                            '1Min', '5Min', '10Min', '15Min', '30Min',
+                            '1H', '3H', '6H', '12H', '1D']
         time_int = list(compress(gui_time_options, time_int))
 
     if type(time_int) == str:
@@ -1383,12 +1372,12 @@ def timebase_resampler(data=0,
         for time in time_int:
             if time != '1S':
                 if 'NaN_ONLY' not in data.columns:
-                    data_temp = data.resample(time,fill_method=None).apply(rmsn)
+                    data_temp = data.resample(time, fill_method=None).apply(rmsn)
                     if 'ccn_sigma' in data_temp:
                         data_resamp = pd.DataFrame(data_temp['ccn_sigma'])
                         data_resamp.columns = ['ccn_rmsn']
                     else:
-                        data_resamp = pd.DataFrame(data_temp.ix[:,0]) # create dataframe
+                        data_resamp = pd.DataFrame(data_temp.ix[:, 0]) # create dataframe
                         data_resamp['ccn_rmsn'] = 0 # if no processing has been done previously
                         # Find name of data column to remove
                         del_col = [col for col in data_resamp.columns if 'ccn_rmsn' not in col]
@@ -1435,8 +1424,8 @@ def timebase_resampler(data=0,
                     data_resamp = data.resample(time).mean()
 
                 # Save to file
-                save_resampled_data(data,data_resamp,time,
-                                    variable,input_h5_filename,
+                save_resampled_data(data, data_resamp, time,
+                                    variable, input_h5_filename,
                                     output_filetype,
                                     gui_mode,
                                     gui_mainloop)
@@ -1444,23 +1433,23 @@ def timebase_resampler(data=0,
     else:
 
         # define time resampling intervals
-        sub = data.iloc[:,24:44].copy()
+        sub = data.iloc[:, 24:44].copy()
         sub_ccn = data['CCN Number Conc'].copy()
         for time in time_int:
-             if time != '1S':
-                data_resamp = sub.resample(time,fill_method=None).median()
+            if time != '1S':
+                data_resamp = sub.resample(time, fill_method=None).median()
                 data_resamp['ccn_count'] = \
-                        sub_ccn.resample(time,fill_method=None).count()
+                        sub_ccn.resample(time, fill_method=None).count()
                 data_resamp['ccn_med'] = \
-                        sub_ccn.resample(time,fill_method=None).median()
+                        sub_ccn.resample(time, fill_method=None).median()
                 data_resamp['ccn_mad'] = \
-                        sub_ccn.resample(time,fill_method=None).apply(mad)
+                        sub_ccn.resample(time, fill_method=None).apply(mad)
                 data_resamp['ccn_avg'] = \
-                        sub_ccn.resample(time,fill_method=None).mean()
+                        sub_ccn.resample(time, fill_method=None).mean()
                 data_resamp['ccn_std'] = \
-                        sub_ccn.resample(time,fill_method=None).std()
+                        sub_ccn.resample(time, fill_method=None).std()
                 data_resamp['ccn_rmsn'] = \
-                        sub_ccn.resample(time,fill_method=None).apply(rmsn)
+                        sub_ccn.resample(time, fill_method=None).apply(rmsn)
 
 
                 # Calculate uncertainty:
@@ -1474,7 +1463,7 @@ def timebase_resampler(data=0,
                                                              'rmsn',
                                                              'ccn_count',
                                                              'std',
-                                                             col_name = 'ccn_avg',
+                                                             col_name='ccn_avg',
                                                              output_sigma_name='sigma_avg')
                 # Remove temporary calculation
                 del data_resamp['ccn_rmsn']
@@ -1504,8 +1493,8 @@ def timebase_resampler(data=0,
                                    inplace=True)
 
                 # Save to file
-                save_resampled_data(data,data_resamp,time,
-                                    variable,input_h5_filename,
+                save_resampled_data(data, data_resamp, time,
+                                    variable, input_h5_filename,
                                     output_filetype,
                                     gui_mode,
                                     gui_mainloop)
@@ -1541,35 +1530,31 @@ def uncertainty_calc_time_resample(data,
 
     for i in range(0, len(ss_root_names)):
         data[ss_root_names[i]+"_"+output_sigma_name] = \
-                    np.sqrt(
-                            (data[rmsn_cols[i]]/data[count_cols[i]])**2
+                    np.sqrt((data[rmsn_cols[i]]/data[count_cols[i]])**2
                             +
-                            (data[dev_cols[i]]/np.sqrt(data[count_cols[i]]))**2
-                            )
+                            (data[dev_cols[i]]/np.sqrt(data[count_cols[i]]))**2)
 
     return data
 
 
 def uncertainty_calc(data,
-                 abs_sigma,
-                 sigma_divisor,
-                 col_name = 'CCN Number Conc',
-                 output_sigma_name = 'ccn_sigma'
-                 ):
+                     abs_sigma,
+                     sigma_divisor,
+                     col_name='CCN Number Conc',
+                     output_sigma_name='ccn_sigma'):
     '''
     Calculates and propogates uncertainty for each calibration process
     '''
     # Remove 0 divisors
-    sigma_divisor = pd.Series([np.nan if i==0 else i for i in sigma_divisor ],
-                              index = data.index)
+    sigma_divisor = pd.Series([np.nan if i == 0 else i for i in sigma_divisor],
+                              index=data.index)
 
     if 'ccn_sigma' in data.columns:
         data[output_sigma_name] = data[col_name] * \
-                            (
-                            (abs_sigma/sigma_divisor)**2
-                            +
-                            (data['ccn_sigma']/data[col_name])**2
-                            )**0.5
+                                  ((abs_sigma/sigma_divisor)**2
+                                   +
+                                   (data['ccn_sigma']/data[col_name])**2)**0.5
+
     else: #Initialise
         data['ccn_sigma'] = data['CCN Number Conc'] * \
                             ((abs_sigma/sigma_divisor)**2)**0.5
@@ -1577,27 +1562,29 @@ def uncertainty_calc(data,
     return data
 
 
-def save_resampled_data(data, data_resamp,time_int,
-                        variable = None, input_h5_filename = None,
-                        output_filetype = 'h5',
+def save_resampled_data(data, data_resamp, time_int,
+                        variable=None,
+                        input_h5_filename=None,
+                        output_filetype='h5',
                         gui_mode=False,
-                        gui_mainloop = None):
+                        gui_mainloop=None):
 
     if input_h5_filename is not None:
         s = input_h5_filename.split('.')
         outputfilename = s[0]+'_'+time_int+'.'+output_filetype
-    elif isinstance(data,pd.DataFrame):
+    elif isinstance(data, pd.DataFrame):
         outputfilename = variable+'_'+time_int+'.'+output_filetype
     else:
         outputfilename = 'undefinedData_'+ time_int +'.'+output_filetype
 
-    if output_filetype in ['h5','hdf']:
+    if output_filetype in ['h5', 'hdf']:
         data_resamp.to_hdf(outputfilename, key=variable)
-    elif output_filetype in ['nc','netcdf']:
+    elif output_filetype in ['nc', 'netcdf']:
         #xkcd
-        atmoscripts.df_to_netcdf(data_resamp,outputfilename,
+        atmoscripts.df_to_netcdf(data_resamp,
+                                 outputfilename,
                                  gui_mode=gui_mode,
-                                 gui_mainloop = gui_mainloop)
+                                 gui_mainloop=gui_mainloop)
     else:
         data_resamp.to_csv(outputfilename)
 
@@ -1605,4 +1592,4 @@ def save_resampled_data(data, data_resamp,time_int,
 
 # if this script is run at the command line, run the main script
 if __name__ == '__main__':
-	main()
+    main()
