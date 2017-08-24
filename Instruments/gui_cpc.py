@@ -115,17 +115,6 @@ class cpc_processing(GenericBaseGui):
         self.cb_file_freq.pack(pady=5, padx=10, side=tk.LEFT)
         self.cb_file_freq.place(rely=0.26, relx=0.375)
 
-#==============================================================================
-#         # Create output supersaturation checkbox
-#         self.split_SS = tk.IntVar()
-#         self.cb_SS = tk.Checkbutton(self.f2,
-#                                     text = 'Split by supersaturation',
-#                                     variable=self.split_SS)
-#         self.cb_SS.select()
-#         self.cb_SS.pack(pady=5,padx=10)
-#         self.cb_SS.place(relx=0.02, rely=0.36)
-#==============================================================================
-
         # Create output time resolution options
         self.f21 = ttk.LabelFrame(self.f2, text='Output time resolution')
         self.f21.pack(pady=5, padx=10, fill='x')
