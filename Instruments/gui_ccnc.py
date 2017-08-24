@@ -73,70 +73,20 @@ class ccn_processing(GenericBaseGui):
 #-----------------------------------------------------------
 # GUI Widgets
 #-----------------------------------------------------------
-    def __init__(self, isapp=True, name='ccnprocessing'):
-        ttk.Frame.__init__(self, name=name)
+    def __init__(self, isapp=True):
+        ttk.Frame.__init__(self, name='ccnprocessing')
         self.pack(expand=tk.Y, fill=tk.BOTH)
         self.master.title('DMT CCN Processing')
-        self.master.geometry("880x560")
+        self.master.geometry('880x560')
         self.isapp = isapp
         self._build_widgets()
-
-    def _build_widgets(self):
-        mainFrame = tk.Frame(self)
-        mainFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.Y)
-
-        self._create_input_frame(mainFrame)
-        self._create_output_frame(mainFrame)
-        self._create_processing_frame(mainFrame)
-
-        self.f1.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f2.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f3.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f1.place(relx=0.01, rely=0.01, relheight=0.39, relwidth=0.49)
-        self.f2.place(relx=0.01, rely=0.4, relheight=0.6, relwidth=0.49)
-        self.f3.place(relx=0.51, rely=0.01, relheight=1, relwidth=0.49)
-
-    def _create_input_frame(self, mainFrame):
-        self.f1 = ttk.LabelFrame(mainFrame, text='Input data')
-
-        # Create open file dialog input
-        self.b_open = tk.Button(self.f1,
-                                text="Select raw files",
-                                command=self.raw_file_dialog)
-
-        self.b_open.pack(pady=5, padx=10, side=tk.TOP)
-        self.b_open.place(relx=0.02, rely=0.02)
-
-        self.f11 = ttk.Frame(self.f1)
-        self.f11.pack(pady=5, padx=10, side=tk.LEFT)
-        self.f11.place(relx=0.02, rely=0.15, relheight=0.83, relwidth=0.96)
-
-        self.lb_openFiles = tk.Listbox(self.f11)
-        self.sb_openFiles = tk.Scrollbar(self.f11)
-
-        self.lb_openFiles.pack(side=tk.LEFT, fill='both', expand=True)
-        self.sb_openFiles.pack(side=tk.LEFT, fill='y')
-
-        # Attach listbox to scrollbar
-        self.lb_openFiles.config(yscrollcommand=self.sb_openFiles.set)
-        self.sb_openFiles.config(command=self.lb_openFiles.yview)
-
-        # Create forceReload check button
-        self.forceReload = tk.IntVar()
-        self.cb_forceReload = tk.Checkbutton(self.f1,
-                                             text="Force reload from source",
-                                             variable=self.forceReload)
-        self.cb_forceReload.select()
-        self.cb_forceReload.pack(pady=5, padx=10, side=tk.TOP)
-        self.cb_forceReload.place(relx=0.52, rely=0.02)
-
 
     def _create_output_frame(self, mainFrame):
         self.f2 = ttk.LabelFrame(mainFrame, text='Output data')
 
         # create output path dialog
         self.b_output = tk.Button(self.f2,
-                                  text="Change output directory",
+                                  text='Change output directory',
                                   command=self.output_path_dialog)
 
         self.b_output.pack(pady=5, padx=10, side=tk.LEFT)
@@ -147,8 +97,7 @@ class ccn_processing(GenericBaseGui):
 
         # Create output filetype combobox
         filetypes = ['netcdf', 'hdf', 'csv']
-        self.lb1 = ttk.Label(self.f2,
-                             text='Select output filetype')
+        self.lb1 = ttk.Label(self.f2, text='Select output filetype')
         self.lb1.pack(pady=5, padx=10, side=tk.LEFT)
         self.lb1.place(rely=0.16, relx=0.02)
 
@@ -159,7 +108,7 @@ class ccn_processing(GenericBaseGui):
         self.cb_output_filetype.current(1)  # set selection
         self.cb_output_filetype.pack(pady=5, padx=10, side=tk.LEFT)
         self.cb_output_filetype.place(rely=0.16, relx=0.375)
-        self.cb_output_filetype.bind("<<ComboboxSelected>>", self.launch_netcdf_input)
+        self.cb_output_filetype.bind('<<ComboboxSelected>>', self.launch_netcdf_input)
 
         # Create output file frequency combobox
         file_freq = ['Single file', 'Daily files', 'Weekly files', 'Monthly files']
@@ -207,21 +156,21 @@ class ccn_processing(GenericBaseGui):
         self.output_1d = tk.IntVar()
 
         # Create checkboxes
-        self.cb_1s = tk.Checkbutton(self.f21, text="1 second", variable=self.output_1s)
-        self.cb_5s = tk.Checkbutton(self.f21, text="5 seconds", variable=self.output_5s)
-        self.cb_10s = tk.Checkbutton(self.f21, text="10 seconds", variable=self.output_10s)
-        self.cb_15s = tk.Checkbutton(self.f21, text="15 seconds", variable=self.output_15s)
-        self.cb_30s = tk.Checkbutton(self.f21, text="30 seconds", variable=self.output_30s)
-        self.cb_1m = tk.Checkbutton(self.f21, text="1 minute", variable=self.output_1m)
-        self.cb_5m = tk.Checkbutton(self.f21, text="5 minutes", variable=self.output_5m)
-        self.cb_10m = tk.Checkbutton(self.f21, text="10 minutes", variable=self.output_10m)
-        self.cb_15m = tk.Checkbutton(self.f21, text="15 minutes", variable=self.output_15m)
-        self.cb_30m = tk.Checkbutton(self.f21, text="30 minutes", variable=self.output_30m)
-        self.cb_1h = tk.Checkbutton(self.f21, text="1 hour", variable=self.output_1h)
-        self.cb_3h = tk.Checkbutton(self.f21, text="3 hours", variable=self.output_3h)
-        self.cb_6h = tk.Checkbutton(self.f21, text="6 hours", variable=self.output_6h)
-        self.cb_12h = tk.Checkbutton(self.f21, text="12 hours", variable=self.output_12h)
-        self.cb_1d = tk.Checkbutton(self.f21, text="1 day", variable=self.output_1d)
+        self.cb_1s = tk.Checkbutton(self.f21, text='1 second', variable=self.output_1s)
+        self.cb_5s = tk.Checkbutton(self.f21, text='5 seconds', variable=self.output_5s)
+        self.cb_10s = tk.Checkbutton(self.f21, text='10 seconds', variable=self.output_10s)
+        self.cb_15s = tk.Checkbutton(self.f21, text='15 seconds', variable=self.output_15s)
+        self.cb_30s = tk.Checkbutton(self.f21, text='30 seconds', variable=self.output_30s)
+        self.cb_1m = tk.Checkbutton(self.f21, text='1 minute', variable=self.output_1m)
+        self.cb_5m = tk.Checkbutton(self.f21, text='5 minutes', variable=self.output_5m)
+        self.cb_10m = tk.Checkbutton(self.f21, text='10 minutes', variable=self.output_10m)
+        self.cb_15m = tk.Checkbutton(self.f21, text='15 minutes', variable=self.output_15m)
+        self.cb_30m = tk.Checkbutton(self.f21, text='30 minutes', variable=self.output_30m)
+        self.cb_1h = tk.Checkbutton(self.f21, text='1 hour', variable=self.output_1h)
+        self.cb_3h = tk.Checkbutton(self.f21, text='3 hours', variable=self.output_3h)
+        self.cb_6h = tk.Checkbutton(self.f21, text='6 hours', variable=self.output_6h)
+        self.cb_12h = tk.Checkbutton(self.f21, text='12 hours', variable=self.output_12h)
+        self.cb_1d = tk.Checkbutton(self.f21, text='1 day', variable=self.output_1d)
 
         self.cb_1s.select() # Select default value as checked
 
@@ -268,13 +217,12 @@ class ccn_processing(GenericBaseGui):
         self.f31.pack(pady=5, padx=10, fill='x')
         self.qc = tk.IntVar()
         self.cb_qc = tk.Checkbutton(self.f31,
-                                    text="QC for internal parameters",
+                                    text='QC for internal parameters',
                                     variable=self.qc)
         self.cb_qc.select()
         self.cb_qc.pack()
 
-        self.f311 = tk.LabelFrame(self.f31,
-                                  text='Select file with mask events (optional)')
+        self.f311 = tk.LabelFrame(self.f31, text='Select file with mask events (optional)')
 
         self.f311.pack(pady=5, padx=10, fill='x')
         self.tb2 = tk.Entry(self.f311, width=45)
@@ -289,10 +237,10 @@ class ccn_processing(GenericBaseGui):
         self.l311 = tk.Label(self.f311, text=u'\u2754')
         self.l311.pack(pady=5, side=tk.LEFT)
         ToolTip.ToolTip(self.l311,
-                        "Choose an ASCII file where the 1st and 2nd columns \
+                        'Choose an ASCII file where the 1st and 2nd columns \
                         are the start and end timestamps of the period to be \
                         removed. Any additional columns (such as description \
-                        columns) will be ignored.")
+                        columns) will be ignored.')
 
 
         self.f32 = ttk.LabelFrame(self.f3, text='Flow calibration')
@@ -304,7 +252,7 @@ class ccn_processing(GenericBaseGui):
         self.tb3 = tk.Entry(self.f321, width=45)
         self.tb3.pack(pady=5, padx=10, side=tk.LEFT)
         self.b321 = tk.Button(self.f321,
-                              text="Browse",
+                              text='Browse',
                               command=self.ask_flowcal_file)
         self.b321.pack(pady=5, padx=10, side=tk.LEFT)
 
@@ -312,13 +260,12 @@ class ccn_processing(GenericBaseGui):
         self.l321 = tk.Label(self.f321, text=u'\u2754')
         self.l321.pack(pady=5, side=tk.LEFT)
         ToolTip.ToolTip(self.l321,
-                        "Choose an ASCII file where the 1st column is the  \
+                        'Choose an ASCII file where the 1st column is the  \
                         timestamp of the flow measurement, and the second \
                         column is the measured flow rate in units of \
-                        L/min or LPM")
+                        L/min or LPM')
 
-
-        self.lb_flow_rate_set = tk.Label(self.f32, text="Set flow rate (LPM)")
+        self.lb_flow_rate_set = tk.Label(self.f32, text='Set flow rate (LPM)')
         self.tb_flow_rate_set = tk.Entry(self.f32, width=10)
         self.tb_flow_rate_set.insert(tk.END, 0.5)
         self.lb_flow_rate_set.pack(pady=5, padx=10, side=tk.LEFT)
@@ -327,7 +274,7 @@ class ccn_processing(GenericBaseGui):
         self.tb_flow_rate_set.place(relx=0.52, rely=0.55)
 
 
-        self.lb_flow_rate_fit = tk.Label(self.f32, text="Polynomial degree for flow rate fit")
+        self.lb_flow_rate_fit = tk.Label(self.f32, text='Polynomial degree for flow rate fit')
         self.tb_flow_rate_fit = tk.Entry(self.f32, width=10)
         self.tb_flow_rate_fit.insert(tk.END, 2)
         self.lb_flow_rate_fit.pack(pady=5, padx=10, side=tk.LEFT)
@@ -340,12 +287,11 @@ class ccn_processing(GenericBaseGui):
         self.f322.pack(pady=5, padx=10, fill='x')
 
         self.lb322 = tk.Label(self.f322,
-                              text = """Corrects reported SS for changes \
-in atm. pressure between cal. site & measurement site. If \
-calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
- hPa."""
-                      ,wraplength=350, )
-        self.lb322.pack(pady=5,padx=10)
+                              text = 'Corrects reported SS for changes \
+                                      in atm. pressure between cal. site & measurement site. If \
+                                      calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
+                                      hPa.', wraplength=350)
+        self.lb322.pack(pady=5, padx=10)
 
         self.correct4pressure = tk.IntVar()
         self.cb_pressCal = tk.Checkbutton(self.f322,
@@ -361,19 +307,18 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
         self.tb_calPress.insert(tk.END, 830)
         self.lb_units1 = tk.Label(self.f3221, text='hPa')
 
-        self.f3221.pack(pady=5, padx=40, side=tk.LEFT, fill='x')
-        self.tb_calPress.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb_units1.pack(pady=5, padx=10, side=tk.LEFT)
+        self.f3221.pack(pady=3, padx=40, side=tk.LEFT, fill='x')
+        self.tb_calPress.pack(pady=3, padx=10, side=tk.LEFT)
+        self.lb_units1.pack(pady=3, padx=10, side=tk.LEFT)
 
         self.f3222 = tk.LabelFrame(self.f322, text='Meas. Pressure')
         self.tb_measPress = tk.Entry(self.f3222, width=5)
         self.tb_measPress.insert(tk.END, 1010)
         self.lb_units2 = tk.Label(self.f3222, text='hPa')
 
-        self.f3222.pack(pady=5, padx=40, side=tk.RIGHT)
-        self.tb_measPress.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb_units2.pack(pady=5, padx=10, side=tk.RIGHT)
-
+        self.f3222.pack(pady=3, padx=40, side=tk.RIGHT)
+        self.tb_measPress.pack(pady=3, padx=10, side=tk.LEFT)
+        self.lb_units2.pack(pady=3, padx=10, side=tk.RIGHT)
 
         self.plotresults = tk.IntVar()
         self.cb_plot = tk.Checkbutton(self.f3,
@@ -397,121 +342,6 @@ calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010\
         self.f322.place(relx=0.01, rely=0.5, relheight=0.33, relwidth=0.98)
         self.cb_plot.place(relx=0.3, rely=0.83)
 
-##-----------------------------------------------------------
-## Variable check window
-##-----------------------------------------------------------
-    # def _alert_bad_input(self, message='Nothing to see here...'):
-    #     self.top = tk.Toplevel()
-    #     self.top.title('Bad input!')
-    #     self.top.geometry("%dx%d" % (300, 200))
-    #     txt = tk.Message(self.top,
-    #                      text=message,
-    #                      justify=tk.CENTER,
-    #                      width=300)
-    #     txt.pack(fill='x')
-
-    #     bt_ok = tk.Button(self.top, text="OK", command=self.dismiss)
-    #     bt_ok.pack(side=tk.BOTTOM)
-
-    # def dismiss(self):
-    #     self.top.destroy()
-
-##-----------------------------------------------------------
-## Processing status window
-##-----------------------------------------------------------
-    def _build_status_window(self):
-        self.w_status = tk.Toplevel()
-        self.w_status.title('CCN Processing Status')
-        self.w_status.geometry("800x500")
-
-        self.w_status.txt_status = tk.Text(self.w_status, wrap='word')
-        self.w_status.sb_status = tk.Scrollbar(self.w_status)
-        self.w_status.txt_status.pack(pady=5, side=tk.LEFT, fill='both', expand=True)
-        self.w_status.sb_status.pack(pady=5, side=tk.LEFT, fill='y')
-
-        # Attach listbox to scrollbar
-        self.w_status.txt_status.config(yscrollcommand=self.w_status.sb_status.set)
-        self.w_status.sb_status.config(command=self.w_status.txt_status.yview)
-
-#        bt_interupt = tk.Button(self.w_status,
-#                             text='Interupt',
-#                             command=self.interupt,
-#                             bg='red',
-#                             fg='white'
-#                             )
-#        bt_interupt.pack(pady=10, side=tk.BOTTOM)
-
-        self.w_status.txt_status.tag_configure("stderr", foreground="#b22222")
-        sys.stdout = TextRedirector(self.w_status.txt_status, "stdout")
-        sys.stderr = TextRedirector(self.w_status.txt_status, "stderr")
-
-#    def interupt(self):
-#        '''
-#        Stops the execution
-#        '''
-#        self.w_interupt_check = tk.Toplevel()
-#        self.w_interupt_check.title('Cancel processing')
-#
-#        l1 = tk.Label(self.w_interupt_check,
-#                      text='Are you sure you want to exit?')
-#        l2 = tk.Label(self.w_interupt_check,
-#                      text="""This will exit the program and you will have
-#to launch the program again"""
-#                      )
-#        l1.pack()
-#        l2.pack()
-#
-#        bt_y = tk.Button(self.w_interupt_check,
-#                      text="Yes, get me out of here!",
-#                      command=self.interupt_yes,
-#                      bg='red',
-#                      fg='white')
-#        bt_n = tk.Button(self.w_interupt_check,
-#                      text="No, please continue",
-#                      command=self.interupt_no,
-#                      bg='green',
-#                      fg='white')
-#        bt_y.pack(side=tk.LEFT,padx=60,pady=5)
-#        bt_n.pack(side=tk.LEFT,padx=60,pady=5)
-#
-#
-#    def interupt_yes(self):
-#        sys.exit(0)
-#
-#    def interupt_no(self):
-#        self.w_interupt_check.destroy()
-
-
-    def finished_window(self):
-        self.w_finished = tk.Toplevel()
-        self.w_finished.title("All finished")
-        self.w_finished.geometry("300x100")
-        txt = tk.Message(self.w_finished,
-                         text="Processing of CCNC data complete!",
-                         justify=tk.CENTER,
-                         width=300)
-        txt.pack()
-        bt_ok = tk.Button(self.w_finished,
-                          text="OK",
-                          command=self.finish)
-        bt_ok.pack()
-
-    def finish(self):
-        self.w_finished.destroy()
-        self.w_status.destroy()
-
-class TextRedirector(object):
-    # Taken from
-    # http://stackoverflow.com/questions/12351786/python-converting-cli-to-gui
-    def __init__(self, widget, tag="stdout"):
-        self.widget = widget
-        self.tag = tag
-
-    def write(self, str):
-        self.widget.configure(state="normal")
-        self.widget.insert("end", str, (self.tag,))
-        self.widget.configure(state="disabled")
-        self.widget.see(tk.END) # Scroll with text
 
 if __name__ == '__main__':
     ccn_processing().mainloop()

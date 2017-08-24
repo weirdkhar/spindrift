@@ -1,7 +1,7 @@
 '''
-Generic gui base class
-Common class methods to be inherited by ccn_proccesing and cpc_processing
-Author: Kristina Johnson
+Generic gui base classes
+Common classes to be inherited by ccn_proccesing and cpc_processing
+Author: Kristina Johnson, Ruhi Humphries
 '''
 
 import os
@@ -15,6 +15,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 import atmoscripts
 
 class GenericBaseGui(ttk.Frame):
+    '''
+    Common gui class to be inherited by ccn_proccesing and cpc_processing
+    '''
 
     def load_and_process(self):
         '''
@@ -108,15 +111,15 @@ class GenericBaseGui(ttk.Frame):
         else:
             output_filetype = 'csv'
 
-        print("Loading data from file")
+        print('Loading data from file')
 
-        t = threading.Thread(target=self.loadAndProcess_Multithread,
-                             args=(output_filetype,
-                                   output_time_res,
-                                   concat_file_freq,
-                                   mask_df,
-                                   flow_cal_df))
-        t.start()
+        thread = threading.Thread(target=self.loadAndProcess_Multithread,
+                             	  args=(output_filetype,
+                                  output_time_res,
+                                  concat_file_freq,
+                                  mask_df,
+                                  flow_cal_df))
+        thread.start()
 
 #-----------------------------------------------------------
 # GUI Functionality
@@ -144,7 +147,6 @@ class GenericBaseGui(ttk.Frame):
         self.t_outputPath.insert(tk.END, self.raw_path)
         self.output_path = self.raw_path
 
-
     def browse_for_file(self):
         '''Prompts user to select input file'''
         file = filedialog.askopenfilename()
@@ -168,7 +170,7 @@ class GenericBaseGui(ttk.Frame):
         self.t_outputPath.delete(0, tk.END)
         self.t_outputPath.insert(tk.END, self.output_path)
 
-    def launch_netcdf_input(self, event):
+    def launch_netcdf_input(self):
         '''
         Launches netcdf input when the combobox option is selected
         '''
@@ -188,24 +190,75 @@ class GenericBaseGui(ttk.Frame):
         self.w_netcdf_input.destroy()
 
 #-----------------------------------------------------------
+# GUI Widgets
+#-----------------------------------------------------------
+    def _build_widgets(self):
+        mainFrame = tk.Frame(self)
+        mainFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.Y)
+
+        self._create_input_frame(mainFrame)
+        self._create_output_frame(mainFrame)
+        self._create_processing_frame(mainFrame)
+
+        self.f1.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
+        self.f2.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
+        self.f3.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
+        self.f1.place(relx=0.01, rely=0.01, relheight=0.39, relwidth=0.49)
+        self.f2.place(relx=0.01, rely=0.4, relheight=0.6, relwidth=0.49)
+        self.f3.place(relx=0.51, rely=0.01, relheight=1, relwidth=0.49)
+
+    def _create_input_frame(self, mainFrame):
+        self.f1 = ttk.LabelFrame(mainFrame, text='Input data')
+
+        # Create open file dialog input
+        self.b_open = tk.Button(self.f1,
+                                text='Select raw files',
+                                command=self.raw_file_dialog)
+
+        self.b_open.pack(pady=5, padx=10, side=tk.TOP)
+        self.b_open.place(relx=0.02, rely=0.02)
+
+        self.f11 = ttk.Frame(self.f1)
+        self.f11.pack(pady=5, padx=10, side=tk.LEFT)
+        self.f11.place(relx=0.02, rely=0.15, relheight=0.83, relwidth=0.96)
+
+        self.lb_openFiles = tk.Listbox(self.f11)
+        self.sb_openFiles = tk.Scrollbar(self.f11)
+
+        self.lb_openFiles.pack(side=tk.LEFT, fill='both', expand=True)
+        self.sb_openFiles.pack(side=tk.LEFT, fill='y')
+
+        # Attach listbox to scrollbar
+        self.lb_openFiles.config(yscrollcommand=self.sb_openFiles.set)
+        self.sb_openFiles.config(command=self.lb_openFiles.yview)
+
+        # Create forceReload check button
+        self.forceReload = tk.IntVar()
+        self.cb_forceReload = tk.Checkbutton(self.f1,
+                                             text='Force reload from source',
+                                             variable=self.forceReload)
+        self.cb_forceReload.select()
+        self.cb_forceReload.pack(pady=5, padx=10, side=tk.TOP)
+        self.cb_forceReload.place(relx=0.52, rely=0.02)
+
+#-----------------------------------------------------------
 # Variable check window
 #-----------------------------------------------------------
     def _alert_bad_input(self, message='Nothing to see here...'):
         self.top = tk.Toplevel()
         self.top.title('Bad input!')
-        self.top.geometry("%dx%d" % (300, 200))
+        self.top.geometry('%dx%d' % (300, 200))
         txt = tk.Message(self.top,
                          text=message,
                          justify=tk.CENTER,
                          width=300)
         txt.pack(fill='x')
 
-        bt_ok = tk.Button(self.top, text="OK", command=self.dismiss)
+        bt_ok = tk.Button(self.top, text='OK', command=self.dismiss)
         bt_ok.pack(side=tk.BOTTOM)
 
     def dismiss(self):
         self.top.destroy()
-
 
 #-----------------------------------------------------------
 # NetCDF Description input window
@@ -213,12 +266,9 @@ class GenericBaseGui(ttk.Frame):
     def _build_netcdf_input_window(self):
         self.w_netcdf_input = tk.Toplevel()
         self.w_netcdf_input.title('NetCDF Input')
-        self.w_netcdf_input.geometry("300x310")
+        self.w_netcdf_input.geometry('300x310')
 
-        self.w_netcdf_input.description = tk.Label(self.w_netcdf_input,
-                text='Please provide descriptions (global attributes) to be \
-                included in the self-describing NetCDF file \n',
-                wraplength=300)
+        self.w_netcdf_input.description = tk.Label(self.w_netcdf_input, text='Please provide global attributes to be included in the self-describing NetCDF file\n', wraplength=300)
         self.w_netcdf_input.description.pack()
 
         text = 'Dataset title'
@@ -254,7 +304,61 @@ class GenericBaseGui(ttk.Frame):
         self.w_netcdf_input.spacer = tk.Label(self.w_netcdf_input, text='').pack()
 
         self.nc_bt_ok = tk.Button(self.w_netcdf_input,
-                                  text="OK",
+                                  text='OK',
                                   width=30,
                                   command=self.close_netcdf_window)
         self.nc_bt_ok.pack()
+
+#-----------------------------------------------------------
+# Processing status window
+#-----------------------------------------------------------
+    def _build_status_window(self):
+        self.w_status = tk.Toplevel()
+        self.w_status.geometry('800x500')
+
+        self.w_status.txt_status = tk.Text(self.w_status, wrap='word')
+        self.w_status.sb_status = tk.Scrollbar(self.w_status)
+        self.w_status.txt_status.pack(pady=5, side=tk.LEFT, fill='both', expand=True)
+        self.w_status.sb_status.pack(pady=5, side=tk.LEFT, fill='y')
+
+        # Attach listbox to scrollbar
+        self.w_status.txt_status.config(yscrollcommand=self.w_status.sb_status.set)
+        self.w_status.sb_status.config(command=self.w_status.txt_status.yview)
+
+        self.w_status.txt_status.tag_configure('stderr', foreground='#b22222')
+        sys.stdout = TextRedirector(self.w_status.txt_status, 'stdout')
+        sys.stderr = TextRedirector(self.w_status.txt_status, 'stderr')
+
+    def finished_window(self):
+        self.w_finished = tk.Toplevel()
+        self.w_finished.geometry('300x100')
+        txt = tk.Message(self.w_finished,
+                         text='Data processing complete!',
+                         justify=tk.CENTER,
+                         width=300)
+        txt.pack()
+        bt_ok = tk.Button(self.w_finished,
+                          text='OK',
+                          command=self.finish)
+        bt_ok.pack()
+
+    def finish(self):
+        self.w_finished.destroy()
+        self.w_status.destroy()
+
+#-----------------------------------------------------------
+# Redirect standard out
+#-----------------------------------------------------------
+class TextRedirector(object):
+    '''
+    Redirect standard out to graphical user interface
+    '''
+    def __init__(self, widget, tag='stdout'):
+        self.widget = widget
+        self.tag = tag
+
+    def write(self, str):
+        self.widget.configure(state='normal')
+        self.widget.insert('end', str, (self.tag,))
+        self.widget.configure(state='disabled')
+        self.widget.see(tk.END) # Scroll with text
