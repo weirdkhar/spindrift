@@ -183,7 +183,7 @@ def LoadAndProcess(ccn_raw_path=None,
                    press_cal=1010,
                    press_meas=1010,
                    split_by_supersaturation=True,
-                   plot_each_step=False,
+                   ## plot_each_step=False,
                    input_filelist=None,
                    gui_mode=False,
                    gui_mainloop=None):
@@ -248,7 +248,7 @@ def LoadAndProcess(ccn_raw_path=None,
                                     load_from_filetype,
                                     substring=file)
 
-        plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'raw')
+        # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'raw')
 
         # Calculate CCN counting uncertainty
         ccn_data = uncertainty_calc(ccn_data, 1, np.sqrt(ccn_data['CCN Number Conc']))
@@ -258,7 +258,7 @@ def LoadAndProcess(ccn_raw_path=None,
             ccn_data = DataQC(ccn_data)
             save_as(ccn_data, ccn_output_path, 'QC', ccn_output_filetype, file)
 
-        plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'QC')
+        # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'QC')
 
         # Perform flow calibration if data is provided
         if flow_cal_file is not None:
@@ -268,7 +268,7 @@ def LoadAndProcess(ccn_raw_path=None,
                                 set_flow_rate=flow_setpt,
                                 polydeg=flow_polyDeg)
             save_as(ccn_data, ccn_output_path, 'flowCal', ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'flow cal')
+            # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'flow cal')
         elif flow_cal_df is not None:
             ccn_data = flow_cal(ccn_data,
                                 measured_flows_df=flow_cal_df,
@@ -276,7 +276,7 @@ def LoadAndProcess(ccn_raw_path=None,
                                 polydeg=flow_polyDeg)
 
             save_as(ccn_data, ccn_output_path, 'flowCal', ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'flow cal')
+            # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'flow cal')
 
         # Calibrate supersaturation
         ccn_data = ss_cal(ccn_data, press_meas, press_cal)
@@ -293,11 +293,11 @@ def LoadAndProcess(ccn_raw_path=None,
         if mask_period_file is not None:
             ccn_data = atmoscripts.log_filter(ccn_data, ccn_raw_path, mask_period_file)
             save_as(ccn_data, ccn_output_path, 'logFilt', ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'log filter')
+            # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'log filter')
         elif mask_period_timestamp_df is not None:
             ccn_data = atmoscripts.log_filter(ccn_data, log_mask_df=mask_period_timestamp_df)
             save_as(ccn_data, ccn_output_path, 'logFilt', ccn_output_filetype, file)
-            plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'log filter')
+            # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'log filter')
 
 
         # Filter for exhaust #xkcd
@@ -308,7 +308,7 @@ def LoadAndProcess(ccn_raw_path=None,
         # Separate into different supersaturations
         ccn_data = ss_split(ccn_data, split_by_supersaturation)
         save_as(ccn_data, ccn_output_path, 'ssSplit', ccn_output_filetype, file)
-        plot_me(ccn_data, plot_each_step, None, 'SS Split')
+        # plot_me(ccn_data, plot_each_step, None, 'SS Split')
 
         # Resample timebase and calculate uncertainties
         ccn_data = timebase_resampler(ccn_data,
@@ -325,16 +325,16 @@ def LoadAndProcess(ccn_raw_path=None,
     return
 # end LoadAndProcess
 
-def plot_me(ccn_data, plot_each_step, var=None, title=''):
-    if plot_each_step:
-        if var is None:
-            # Plot everything
-            plt.plot(ccn_data)
-        else:
-            plt.plot(ccn_data[var])
-        plt.title(title)
-        plt.show()
-    return
+# def plot_me(ccn_data, plot_each_step, var=None, title=''):
+#     if plot_each_step:
+#         if var is None:
+#             # Plot everything
+#             plt.plot(ccn_data)
+#         else:
+#             plt.plot(ccn_data[var])
+#         plt.title(title)
+#         plt.show()
+#     return
 
 def get_raw_filelist(ccn_output_path, output_filetype, substring='raw'):
     '''

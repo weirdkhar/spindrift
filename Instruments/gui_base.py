@@ -10,6 +10,7 @@ import threading
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+import CCNC
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import atmoscripts
@@ -170,7 +171,7 @@ class GenericBaseGui(ttk.Frame):
         self.t_outputPath.delete(0, tk.END)
         self.t_outputPath.insert(tk.END, self.output_path)
 
-    def launch_netcdf_input(self):
+    def launch_netcdf_input(self, event):
         '''
         Launches netcdf input when the combobox option is selected
         '''
@@ -195,51 +196,53 @@ class GenericBaseGui(ttk.Frame):
     def _build_widgets(self):
         mainFrame = tk.Frame(self)
         mainFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.Y)
+        mainFrame.pack(fill=tk.BOTH, expand=1)
 
         self._create_input_frame(mainFrame)
         self._create_output_frame(mainFrame)
         self._create_processing_frame(mainFrame)
 
+        self.f1.pack(in_=mainFrame, side=tk.TOP, fill=tk.X, padx=5, pady=5)
+        self.f2.pack(in_=mainFrame, side=tk.TOP)
+        self.f3.pack(in_=mainFrame, side=tk.TOP)
+
         self.f1.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
         self.f2.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
         self.f3.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f1.place(relx=0.01, rely=0.01, relheight=0.39, relwidth=0.49)
-        self.f2.place(relx=0.01, rely=0.4, relheight=0.6, relwidth=0.49)
-        self.f3.place(relx=0.51, rely=0.01, relheight=1, relwidth=0.49)
+        self.f1.place(relx=0.01, rely=0.01, relheight=0.2, relwidth=0.49)
+        self.f2.place(relx=0.01, rely=0.2, relheight=0.3, relwidth=0.49)
+        self.f3.place(relx=0.01, rely=0.5, relheight=0.4, relwidth=0.49)
 
-    def _create_input_frame(self, mainFrame):
+
+    def build_widgets(self):
+        """
+        KJ - new version using grid
+        """
+        mainFrame = tk.Frame(self)
+        mainFrame.grid(row=0, column=0, sticky=tk.NSEW)
+        self.create_input_frame(mainFrame)
+        self.create_output_frame(mainFrame)
+        self.create_processing_frame(mainFrame)
+
+
+    def create_input_frame(self, mainFrame):
+        """
+        KJ - new version using grid
+        """
         self.f1 = ttk.LabelFrame(mainFrame, text='Input data')
-
-        # Create open file dialog input
-        self.b_open = tk.Button(self.f1,
-                                text='Select raw files',
-                                command=self.raw_file_dialog)
-
-        self.b_open.pack(pady=5, padx=10, side=tk.TOP)
-        self.b_open.place(relx=0.02, rely=0.02)
-
-        self.f11 = ttk.Frame(self.f1)
-        self.f11.pack(pady=5, padx=10, side=tk.LEFT)
-        self.f11.place(relx=0.02, rely=0.15, relheight=0.83, relwidth=0.96)
-
-        self.lb_openFiles = tk.Listbox(self.f11)
-        self.sb_openFiles = tk.Scrollbar(self.f11)
-
-        self.lb_openFiles.pack(side=tk.LEFT, fill='both', expand=True)
-        self.sb_openFiles.pack(side=tk.LEFT, fill='y')
-
-        # Attach listbox to scrollbar
-        self.lb_openFiles.config(yscrollcommand=self.sb_openFiles.set)
-        self.sb_openFiles.config(command=self.lb_openFiles.yview)
-
-        # Create forceReload check button
+        self.b_open = tk.Button(self.f1, text='Select raw files', command=self.raw_file_dialog)
+        self.lb_openFiles = tk.Listbox(self.f1) # original listbox had a scroll bar added
         self.forceReload = tk.IntVar()
         self.cb_forceReload = tk.Checkbutton(self.f1,
                                              text='Force reload from source',
                                              variable=self.forceReload)
         self.cb_forceReload.select()
-        self.cb_forceReload.pack(pady=5, padx=10, side=tk.TOP)
-        self.cb_forceReload.place(relx=0.52, rely=0.02)
+
+        # place all Input Frame elements using grid
+        self.f1.grid(row=0, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
+        self.b_open.grid(column=1, row=1, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.lb_openFiles.grid(column=1, row=2, columnspan=3, rowspan=1, sticky=tk.NSEW, padx=5, pady=5)
+        self.cb_forceReload.grid(column=2, row=1, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
 
 #-----------------------------------------------------------
 # Variable check window
