@@ -193,29 +193,9 @@ class GenericBaseGui(ttk.Frame):
 #-----------------------------------------------------------
 # GUI Widgets
 #-----------------------------------------------------------
-    def _build_widgets(self):
-        mainFrame = tk.Frame(self)
-        mainFrame.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.Y)
-        mainFrame.pack(fill=tk.BOTH, expand=1)
-
-        self._create_input_frame(mainFrame)
-        self._create_output_frame(mainFrame)
-        self._create_processing_frame(mainFrame)
-
-        self.f1.pack(in_=mainFrame, side=tk.TOP, fill=tk.X, padx=5, pady=5)
-        self.f2.pack(in_=mainFrame, side=tk.TOP)
-        self.f3.pack(in_=mainFrame, side=tk.TOP)
-
-        self.f1.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f2.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f3.pack(in_=mainFrame, side=tk.TOP, pady=5, padx=10)
-        self.f1.place(relx=0.01, rely=0.01, relheight=0.2, relwidth=0.49)
-        self.f2.place(relx=0.01, rely=0.2, relheight=0.3, relwidth=0.49)
-        self.f3.place(relx=0.01, rely=0.5, relheight=0.4, relwidth=0.49)
-
-
     def build_widgets(self):
         """
+        Draw the main grid for the gui, and place the frames for input, output and processing in it
         KJ - new version using grid
         """
         mainFrame = tk.Frame(self)
@@ -227,6 +207,7 @@ class GenericBaseGui(ttk.Frame):
 
     def create_input_frame(self, mainFrame):
         """
+        Draw the gui frame for data input options
         KJ - new version using grid
         """
         self.f1 = ttk.LabelFrame(mainFrame, text='Input data')
@@ -248,6 +229,9 @@ class GenericBaseGui(ttk.Frame):
 # Variable check window
 #-----------------------------------------------------------
     def _alert_bad_input(self, message='Nothing to see here...'):
+         """
+        Draw the gui for the bad input alert
+        """
         self.top = tk.Toplevel()
         self.top.title('Bad input!')
         self.top.geometry('%dx%d' % (300, 200))
@@ -267,6 +251,9 @@ class GenericBaseGui(ttk.Frame):
 # NetCDF Description input window
 #-----------------------------------------------------------
     def _build_netcdf_input_window(self):
+        """
+        Draw the gui for netcdf input options
+        """
         self.w_netcdf_input = tk.Toplevel()
         self.w_netcdf_input.title('NetCDF Input')
         self.w_netcdf_input.geometry('300x310')

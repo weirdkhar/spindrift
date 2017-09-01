@@ -73,17 +73,21 @@ class ccn_processing(GenericBaseGui):
 # GUI Widgets
 #-----------------------------------------------------------
     def __init__(self, isapp=True):
+        """
+        Initialise the gui
+        KJ - new version using grid
+        """
         ttk.Frame.__init__(self, name='ccnprocessing')
         self.grid(row=0, column=0, sticky=tk.NSEW)
         self.master.title('DMT CCN Processing')
         self.master.geometry('1800x1200')    # original 880x560
         self.isapp = isapp
         self.build_widgets()
-        # self._build_widgets()
 
 
     def create_output_frame(self, mainFrame):
         """
+        Draw the gui frame for data output options
         KJ - new version using grid
         """
         self.f2 = ttk.LabelFrame(mainFrame, text='Output data', width=1000)
@@ -186,6 +190,7 @@ class ccn_processing(GenericBaseGui):
 
     def create_processing_frame(self, mainFrame):
         """
+        Draw the gui frame for data processing options
         KJ - new version using grid
         """
         self.f3 = ttk.LabelFrame(mainFrame, text='Processing options')
