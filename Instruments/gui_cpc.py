@@ -12,16 +12,23 @@ Useful documentation:
 
 import os
 import sys
+import re
 import threading
+import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-import CPC_TSI
-import ToolTip
 from gui_base import GenericBaseGui
+
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import atmoscripts
+import CPC_TSI
+import ToolTip
 
 class cpc_processing(GenericBaseGui):
 
@@ -48,7 +55,6 @@ class cpc_processing(GenericBaseGui):
                                flow_cal_df=flow_cal_df,
                                CN_flow_setpt=float(self.tb_flow_rate_set.get())*1000,
                                CN_flow_polyDeg=float(self.tb_flow_rate_fit.get()),
-                               plot_each_step=self.plotresults.get(),
                                gui_mode=True,
                                gui_mainloop=self.w_status)
 
@@ -246,6 +252,11 @@ than the measurement computer's time zone settings.''', wraplength=350)
         self.tb_TZdesired.insert(tk.END, 0)
         self.lb_units2 = tk.Label(self.f322, text='hrs from UTC')
 
+        self.bt_go = tk.Button(self.f3,
+                               text='GO',
+                               command=self.load_and_process,
+                               font='Times 18 bold',
+                               width=15)
 
          # place all Processing Frame elements using grid
         self.f3.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
@@ -273,26 +284,69 @@ than the measurement computer's time zone settings.''', wraplength=350)
         self.tb_TZdesired.grid(row=29, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
         self.lb_units2.grid(row=29, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
 
+        self.bt_go.grid(row=30, column=1, columnspan=3, rowspan=1, sticky=tk.S, padx=5, pady=5)
 
-    def _create_processing_frame(self, mainFrame):
+    def create_plot(self, mainFrame):
+        '''
+        test data - open web statistics data file and create a bar chart
+        '''
+        data = []
+        with open('webStatsHourly.txt', 'r') as file:
+            for line in file:
+                if re.match('[a-z]', line):
+                    pass
+                else:
+                    data.extend(line.strip().split(','))
 
+        i = 0
+        hour = []
+        requests = []
+        pages = []
+        for token in data:
+            if re.match(r'\d', token):
+                if i == 0:
+                    token = int(token)
+                    hour.append(token)
+                    i = 1
+                elif i == 1:
+                    token = int(token)
+                    requests.append(token)
+                    i = 2
+                elif i == 2:
+                    token = int(token)
+                    pages.append(token)
+                    i = 0
 
+        fig1 = Figure(figsize=(12, 10), dpi=100)
+        ax = fig1.add_subplot(1, 1, 1)
 
-        # Create go button!
-        self.bt_go = tk.Button(self.f3,
-                       text='GO!',
-                       command=self.load_and_process,
-                       background='forest green',
-                       foreground='white',
-                       font='Times 18 bold',
-                       width=15)
-        self.bt_go.pack(side=tk.BOTTOM)
-        self.bt_go.place(rely=0.89, relx=0.25)
+        # create bar chart
+        n = len(hour)
+        ind = np.arange(n)
+        width = 0.5
 
-        self.f31.place(relx=0.01, rely=0.04, relheight=0.15, relwidth=0.98)
-        self.f32.place(relx=0.01, rely=0.2, relheight=0.26, relwidth=0.98)
-        self.f322.place(relx=0.01, rely=0.47, relheight=0.33, relwidth=0.98)
-        self.cb_plot.place(relx=0.3, rely=0.83)
+        plot1 = ax.bar(ind, requests, width, color="#ccdbfa")
+        plot2 = ax.bar(ind+width, pages, width, color="#3f537a")
+
+        # create labels & legend
+        ax.set_ylabel('Number', color="#4F5561", fontsize=12)
+        ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
+        ax.legend((plot1[0], plot2[0]), ('Requests', 'Pages'))
+
+        self.f4 = tk.LabelFrame(mainFrame, text='Data Plot')
+        self.f4.grid(row=0, column=5, rowspan=30, columnspan=20, sticky=(tk.NSEW), padx=20)
+
+        canvas = FigureCanvasTkAgg(fig1, self.f4)
+        canvas.show()
+        canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=30, sticky=(tk.NSEW), padx=5, pady=5)
+
+        self.f41 = tk.LabelFrame(self.f4, text='Navigation Tools')
+        self.f41.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
+
+        toolbar = NavigationToolbar2TkAgg(canvas, self.f41)
+        toolbar.update()
+        canvas._tkcanvas.grid(row=0, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
+
 
 if __name__ == '__main__':
     cpc_processing().mainloop()

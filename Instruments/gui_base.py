@@ -203,7 +203,7 @@ class GenericBaseGui(tk.Frame):
         self.create_input_frame(mainFrame)
         self.create_output_frame(mainFrame)
         self.create_processing_frame(mainFrame)
-        # self.create_plot(mainFrame)
+        self.create_plot(mainFrame)
 
 
     def create_input_frame(self, mainFrame):

@@ -273,7 +273,7 @@ class ccn_processing(GenericBaseGui):
         self.f3.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
         self.f31.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
         self.cb_qc.grid(row=1, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.f311.grid(row=2, column=0, rowspan=1, columnspan=3, sticky=tk.NW, padx=5, pady=5)
+
         self.tb2.grid(row=3, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
         self.b311.grid(row=3, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
         self.l311.grid(row=3, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
