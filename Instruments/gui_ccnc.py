@@ -2,7 +2,7 @@
 Code for the gui of the processing of aerosol gear
 
 Written by Ruhi Humphries
-2017
+Edited by Kristina Johnson
 
 Useful documentation:
     http://www.tkdocs.com/tutorial/widgets.html
@@ -11,14 +11,22 @@ Useful documentation:
 '''
 import os
 import sys
+import re
 import threading
 import tkinter as tk
 from tkinter import ttk
-import CCNC
-import ToolTip
-from gui_base import GenericBaseGui
+import numpy as np
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import CCNC
+import ToolTip
+
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+
+from gui_base import GenericBaseGui
 
 
 class ccn_processing(GenericBaseGui):
@@ -47,7 +55,6 @@ class ccn_processing(GenericBaseGui):
                             calibrate_for_pressure=self.cb_pressCal,
                             press_cal=float(self.tb_calPress.get()),
                             press_meas=float(self.tb_measPress.get()),
-                            # plot_each_step=self.plotresults.get(),
                             input_filelist=list(self.files_raw),
                             gui_mode=True,
                             gui_mainloop=self.w_status)
@@ -77,10 +84,10 @@ class ccn_processing(GenericBaseGui):
         Initialise the gui
         KJ - new version using grid
         """
-        ttk.Frame.__init__(self, name='ccnprocessing')
+        tk.Frame.__init__(self, name='ccnprocessing')
         self.grid(row=0, column=0, sticky=tk.NSEW)
         self.master.title('DMT CCN Processing')
-        self.master.geometry('1800x1200')    # original 880x560
+        self.master.geometry('1760x1160')    # original 880x560
         self.isapp = isapp
         self.build_widgets()
 
@@ -90,7 +97,8 @@ class ccn_processing(GenericBaseGui):
         Draw the gui frame for data output options
         KJ - new version using grid
         """
-        self.f2 = ttk.LabelFrame(mainFrame, text='Output data', width=1000)
+        # create output path dialog
+        self.f2 = tk.LabelFrame(mainFrame, text='Output data')
         self.b_output = tk.Button(self.f2,
                                   text='Change output directory',
                                   command=self.output_path_dialog)
@@ -98,7 +106,7 @@ class ccn_processing(GenericBaseGui):
 
         # Create output filetype combobox
         filetypes = ['netcdf', 'hdf', 'csv']
-        self.lb1 = ttk.Label(self.f2, text='Select output filetype')
+        self.lb1 = tk.Label(self.f2, text='Select output filetype')
         self.cb_output_filetype = ttk.Combobox(self.f2,
                                                values=filetypes,
                                                state='readonly',
@@ -121,7 +129,7 @@ class ccn_processing(GenericBaseGui):
                                     text='Split by supersaturation',
                                     variable=self.split_SS)
         self.cb_SS.select()
-        self.f21 = ttk.LabelFrame(self.f2, text='Output time resolution')
+        self.f21 = tk.LabelFrame(self.f2, text='Output time resolution')
 
         # Declare checkbox variables - KJ - Change this to combo box
         self.output_1s = tk.IntVar()
@@ -160,7 +168,7 @@ class ccn_processing(GenericBaseGui):
         self.cb_1s.select() # set selection
 
         # place all Output Frame elements using grid
-        self.f2.grid(row=2, column=0, rowspan=2, columnspan=2, sticky=tk.NW, padx=5)
+        self.f2.grid(row=2, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
         self.b_output.grid(column=1, row=1, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
         self.t_outputPath.grid(column=2, row=1, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
         self.lb1.grid(column=1, row=2, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
@@ -193,10 +201,10 @@ class ccn_processing(GenericBaseGui):
         Draw the gui frame for data processing options
         KJ - new version using grid
         """
-        self.f3 = ttk.LabelFrame(mainFrame, text='Processing options')
+        self.f3 = tk.LabelFrame(mainFrame, text='Processing options')
 
         # Data mask/removal frame
-        self.f31 = ttk.LabelFrame(self.f3, text='Data masking/removal')
+        self.f31 = tk.LabelFrame(self.f3, text='Data masking/removal')
         self.qc = tk.IntVar()
         self.cb_qc = tk.Checkbutton(self.f31,
                                     text='QC for internal parameters',
@@ -215,7 +223,7 @@ class ccn_processing(GenericBaseGui):
                         removed. Any additional columns (such as description \
                         columns) will be ignored.')
 
-        self.f32 = ttk.LabelFrame(self.f3, text='Flow calibration')
+        self.f32 = tk.LabelFrame(self.f3, text='Flow calibration')
         self.f321 = tk.LabelFrame(self.f32, text='Select file with flow calibration data (optional)')
         self.tb3 = tk.Entry(self.f321, width=40)
         self.b321 = tk.Button(self.f321,
@@ -236,7 +244,7 @@ class ccn_processing(GenericBaseGui):
         self.tb_flow_rate_fit = tk.Entry(self.f32, width=10)
         self.tb_flow_rate_fit.insert(tk.END, 2)
 
-        self.f322 = ttk.LabelFrame(self.f3, text='Supersaturation calibration for atmospheric pressure')
+        self.f322 = tk.LabelFrame(self.f3, text='Supersaturation calibration for atmospheric pressure')
         self.lb322 = tk.Label(self.f322, text = 'Corrects reported SS for changes in atm. pressure between cal. site & measurement site. If calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010 hPa.', wraplength=350)
         self.correct4pressure = tk.IntVar()
         self.cb_pressCal = tk.Checkbutton(self.f322,
@@ -293,6 +301,67 @@ class ccn_processing(GenericBaseGui):
         self.lb_units2.grid(row=5, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
 
         self.bt_go.grid(row=24, column=1, columnspan=3, rowspan=1, sticky=tk.S, padx=5, pady=5)
+
+    def create_plot(self, mainFrame):
+        '''
+        test data - open web statistics data file and create a bar chart
+        '''
+        data = []
+        with open('webStatsHourly.txt', 'r') as file:
+            for line in file:
+                if re.match('[a-z]', line):
+                    pass
+                else:
+                    data.extend(line.strip().split(','))
+
+        i = 0
+        hour = []
+        requests = []
+        pages = []
+        for token in data:
+            if re.match(r'\d', token):
+                if i == 0:
+                    token = int(token)
+                    hour.append(token)
+                    i = 1
+                elif i == 1:
+                    token = int(token)
+                    requests.append(token)
+                    i = 2
+                elif i == 2:
+                    token = int(token)
+                    pages.append(token)
+                    i = 0
+
+        fig1 = Figure(figsize=(13, 11), dpi=100)
+        ax = fig1.add_subplot(1, 1, 1)
+
+        # create bar chart
+        n = len(hour)
+        ind = np.arange(n)
+        width = 0.5
+
+        plot1 = ax.bar(ind, requests, width, color="#ccdbfa")
+        plot2 = ax.bar(ind+width, pages, width, color="#3f537a")
+
+        # create labels & legend
+        ax.set_ylabel('Number', color="#4F5561", fontsize=12)
+        ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
+        ax.legend((plot1[0], plot2[0]), ('Requests', 'Pages'))
+
+        self.f4 = tk.LabelFrame(mainFrame, text='Data Plot')
+        self.f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)
+
+        canvas = FigureCanvasTkAgg(fig1, self.f4)
+        canvas.show()
+        canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=20, sticky=(tk.NSEW), padx=5, pady=5)
+
+        self.f41 = tk.LabelFrame(self.f4, text='Navigation Tools')
+        self.f41.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
+
+        toolbar = NavigationToolbar2TkAgg(canvas, self.f41)
+        toolbar.update()
+        canvas._tkcanvas.grid(row=0, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
 
 if __name__ == '__main__':
     ccn_processing().mainloop()

@@ -75,52 +75,45 @@ class cpc_processing(GenericBaseGui):
 #-----------------------------------------------------------
     def __init__(self, isapp=True):
         ttk.Frame.__init__(self, name='cpcprocessing')
-        self.pack(expand=tk.Y, fill=tk.BOTH)
+        self.grid(row=0, column=0, sticky=tk.NSEW)
         self.master.title('TSI CPC Processing')
-        self.master.geometry('880x560')
+        self.master.geometry('1760x1160')    # original 880x560
         self.isapp = isapp
-        self._build_widgets()
+        self.build_widgets()
 
-    def _create_output_frame(self, mainFrame):
-        self.f2 = ttk.LabelFrame(mainFrame, text='Output data')
-
+    def create_output_frame(self, mainFrame):
+        """
+        Draw the gui frame for data output options
+        KJ - new version using grid
+        """
         # create output path dialog
-        self.b_output = tk.Button(self.f2, text='Change output directory', command=self.output_path_dialog)
-        self.b_output.pack(pady=5, padx=10, side=tk.LEFT)
-        self.b_output.place(rely=0.05, relx=0.02)
-        self.t_outputPath = tk.Entry(self.f2, width=42)
-        self.t_outputPath.pack(pady=5, padx=10, side=tk.LEFT)
-        self.t_outputPath.place(rely=0.06, relx=0.375)
+        self.f2 = tk.LabelFrame(mainFrame, text='Output data')
+        self.b_output = tk.Button(self.f2,
+                                  text='Change output directory',
+                                  command=self.output_path_dialog)
+        self.t_outputPath = tk.Entry(self.f2)
 
-        # Create output filetype combobox
+         # Create output filetype combobox
         filetypes = ['netcdf', 'hdf', 'csv']
-        self.lb1 = ttk.Label(self.f2, text='Select output filetype')
-        self.lb1.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb1.place(rely=0.16, relx=0.02)
-
-        self.cb_output_filetype = ttk.Combobox(self.f2, values=filetypes, state='readonly', width=10)
+        self.lb1 = tk.Label(self.f2, text='Select output filetype')
+        self.cb_output_filetype = ttk.Combobox(self.f2,
+                                               values=filetypes,
+                                               state='readonly',
+                                               width=10)
         self.cb_output_filetype.current(1)  # set selection
-        self.cb_output_filetype.pack(pady=5, padx=10, side=tk.LEFT)
-        self.cb_output_filetype.place(rely=0.16, relx=0.375)
         self.cb_output_filetype.bind('<<ComboboxSelected>>', self.launch_netcdf_input)
 
-        # Create output file frequency combobox
         file_freq=['Single file', 'Daily files', 'Weekly files', 'Monthly files']
         self.lb2 = tk.Label(self.f2, text='Select output frequency')
-        self.lb2.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb2.place(rely=0.26, relx=0.02)
-
-        self.cb_file_freq = ttk.Combobox(self.f2, values=file_freq, state='readonly', width=15)
+        self.cb_file_freq = ttk.Combobox(self.f2,
+                                         values=file_freq,
+                                         state='readonly',
+                                         width=15)
         self.cb_file_freq.current(2)  # set selection
-        self.cb_file_freq.pack(pady=5, padx=10, side=tk.LEFT)
-        self.cb_file_freq.place(rely=0.26, relx=0.375)
 
-        # Create output time resolution options
-        self.f21 = ttk.LabelFrame(self.f2, text='Output time resolution')
-        self.f21.pack(pady=5, padx=10, fill='x')
-        self.f21.place(rely=0.46, relx=0.02, relwidth=0.96, relheight=0.50)
+        self.f21 = tk.LabelFrame(self.f2, text='Output time resolution')
 
-        # Declare checkbox variables
+         # Declare checkbox variables - KJ - Change this to combo box
         self.output_1s = tk.IntVar()
         self.output_5s = tk.IntVar()
         self.output_10s = tk.IntVar()
@@ -154,86 +147,65 @@ class cpc_processing(GenericBaseGui):
         self.cb_12h = tk.Checkbutton(self.f21, text='12 hours', variable=self.output_12h)
         self.cb_1d = tk.Checkbutton(self.f21, text='1 day', variable=self.output_1d)
 
-        self.cb_1s.select() # Select default value as checked
+        self.cb_1s.select() # set selection
 
-        # Position
-        self.cb_1s.pack(pady=2, padx=10)
-        self.cb_5s.pack(pady=2, padx=10)
-        self.cb_10s.pack(pady=2, padx=10)
-        self.cb_15s.pack(pady=2, padx=10)
-        self.cb_30s.pack(pady=2, padx=10)
-        self.cb_1m.pack(pady=2, padx=10)
-        self.cb_5m.pack(pady=2, padx=10)
-        self.cb_10m.pack(pady=2, padx=10)
-        self.cb_15m.pack(pady=2, padx=10)
-        self.cb_30m.pack(pady=2, padx=10)
-        self.cb_1h.pack(pady=2, padx=10)
-        self.cb_3h.pack(pady=2, padx=10)
-        self.cb_6h.pack(pady=2, padx=10)
-        self.cb_12h.pack(pady=2, padx=10)
-        self.cb_1d.pack(pady=2, padx=10)
+        # place all Output Frame elements using grid
+        self.f2.grid(row=2, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
+        self.b_output.grid(column=1, row=1, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.t_outputPath.grid(column=2, row=1, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
+        self.lb1.grid(column=1, row=2, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_output_filetype.grid(column=2, row=2, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
+        self.lb2.grid(column=1, row=3, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_file_freq.grid(column=2, row=3, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
+        self.f21.grid(column=1, row=5, columnspan=3, rowspan=5, sticky=tk.NW, padx=5, pady=5)
 
-        self.cb_1s.place(relx=0.02, rely=0.02)
-        self.cb_5s.place(relx=0.02, rely=0.20)
-        self.cb_10s.place(relx=0.02, rely=0.38)
-        self.cb_15s.place(relx=0.02, rely=0.56)
-        self.cb_30s.place(relx=0.02, rely=0.74)
+        self.cb_1s.grid(column=1, row=5, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_5s.grid(column=1, row=6, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_10s.grid(column=1, row=7, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_15s.grid(column=1, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_30s.grid(column=1, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
 
-        self.cb_1m.place(relx=0.33, rely=0.02)
-        self.cb_5m.place(relx=0.33, rely=0.20)
-        self.cb_10m.place(relx=0.33, rely=0.38)
-        self.cb_15m.place(relx=0.33, rely=0.56)
-        self.cb_30m.place(relx=0.33, rely=0.74)
+        self.cb_1m.grid(column=2, row=5, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_5m.grid(column=2, row=6, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_10m.grid(column=2, row=7, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_15m.grid(column=2, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_30m.grid(column=2, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
 
-        self.cb_1h.place(relx=0.67, rely=0.02)
-        self.cb_3h.place(relx=0.67, rely=0.20)
-        self.cb_6h.place(relx=0.67, rely=0.38)
-        self.cb_12h.place(relx=0.67, rely=0.56)
-        self.cb_1d.place(relx=0.67, rely=0.74)
+        self.cb_1h.grid(column=3, row=5, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_3h.grid(column=3, row=6, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_6h.grid(column=3, row=7, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_12h.grid(column=3, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_1d.grid(column=3, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
 
-    def _create_processing_frame(self, mainFrame):
-        self.f3 = ttk.LabelFrame(mainFrame, text='Processing options')
-
-        # Data mask/removal frame
-        self.f31 = ttk.LabelFrame(self.f3, text='Data masking/removal')
-        self.f31.pack(pady=5, padx=10, fill='x')
-#        self.qc = tk.IntVar()
-#        self.cb_qc = tk.Checkbutton(self.f31,
-#                               text='QC for internal parameters',
-#                               variable=self.qc)
-#        self.cb_qc.select()
-#        self.cb_qc.pack(pady=5,padx=10)
-
+    def create_processing_frame(self, mainFrame):
+        """
+        Draw the gui frame for data processing options
+        KJ - new version using grid
+        """
+        self.f3 = tk.LabelFrame(mainFrame, text='Processing options')
+        self.f31 = tk.LabelFrame(self.f3, text='Data masking/removal')
         self.f311 = tk.LabelFrame(self.f31, text='Select file with mask events (optional)')
-        self.f311.pack(pady=5, padx=10, fill='x')
-        self.tb2 = tk.Entry(self.f311, width=45)
-        self.tb2.pack(pady=5, padx=10, fill='x', side=tk.LEFT)
-        self.b3 = tk.Button(self.f311, text='Browse', command=self.ask_mask_file).pack(pady=5, padx=10, side=tk.LEFT)
+        self.tb2 = tk.Entry(self.f311, width=40)
+        self.b311 = tk.Button(self.f311,
+                              text='Browse',
+                              command=self.ask_mask_file)
 
-        self.f32 = ttk.LabelFrame(self.f3, text='Flow calibration')
-        self.f32.pack(pady=5, padx=10, fill='x')
-
-        # Create help tooltip
+        # help tooltip
         self.l311 = tk.Label(self.f311, text=u'\u2754')
-        self.l311.pack(pady=5, side=tk.LEFT)
         ToolTip.ToolTip(self.l311,
                         'Choose an ASCII file where the 1st and 2nd columns \
                         are the start and end timestamps of the period to be \
                         removed. Any additional columns (such as description \
                         columns) will be ignored.')
 
-
+        self.f32 = tk.LabelFrame(self.f3, text='Flow calibration')
         self.f321 = tk.LabelFrame(self.f32, text='Select file with flow calibration data (optional)')
-        self.f321.pack(pady=5, padx=10, fill='x')
-
-        self.tb3 = tk.Entry(self.f321, width=45)
-        self.tb3.pack(pady=5, padx=10, side=tk.LEFT)
-        self.b3 = tk.Button(self.f321, text='Browse', command=self.ask_flowcal_file)
-        self.b3.pack(pady=5, padx=10, side=tk.LEFT)
-
-        # Create help tooltip
+        self.tb3 = tk.Entry(self.f321, width=40)
+        self.b321 = tk.Button(self.f321,
+                              text='Browse',
+                              command=self.ask_flowcal_file)
+         # help tooltip
         self.l321 = tk.Label(self.f321, text=u'\u2754')
-        self.l321.pack(pady=5, side=tk.LEFT)
         ToolTip.ToolTip(self.l321,
                         'Choose an ASCII file where the 1st column is the  \
                         timestamp of the flow measurement, and the second \
@@ -242,66 +214,69 @@ class cpc_processing(GenericBaseGui):
 
         self.lb_flow_rate_set = tk.Label(self.f32, text='Set flow rate (LPM)')
         self.tb_flow_rate_set = tk.Entry(self.f32, width=10)
-        self.tb_flow_rate_set.insert(tk.END,1.0)
-        self.lb_flow_rate_set.pack(pady=5, padx=10, side=tk.LEFT)
-        self.tb_flow_rate_set.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb_flow_rate_set.place(relx=0.02, rely=0.55)
-        self.tb_flow_rate_set.place(relx=0.52, rely=0.55)
-
+        self.tb_flow_rate_set.insert(tk.END, 1.0)
         self.lb_flow_rate_fit = tk.Label(self.f32, text='Polynomial degree for flow rate fit')
         self.tb_flow_rate_fit = tk.Entry(self.f32, width=10)
-        self.tb_flow_rate_fit.insert(tk.END, 2)
-        self.lb_flow_rate_fit.pack(pady=5, padx=10, side=tk.LEFT)
-        self.tb_flow_rate_fit.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb_flow_rate_fit.place(relx=0.02, rely=0.8)
-        self.tb_flow_rate_fit.place(relx=0.52, rely=0.8)
+        self.tb_flow_rate_fit.insert(tk.END, 2.0)
 
+        self.lb_flow_rate_set.grid(row=16, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.tb_flow_rate_set.grid(row=16, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.lb_flow_rate_fit.grid(row=17, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.tb_flow_rate_fit.grid(row=17, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
 
-#==============================================================================
-        self.f322 = ttk.LabelFrame(self.f3, text='Time Zone Correction')
-        self.f322.pack(pady=5,padx=10, fill='x')
-
-        self.lb322 = tk.Label(self.f322,
-                       text = '''Corrects timestamp for offset created by AIM \
+        self.f322 = tk.LabelFrame(self.f3, text='Time Zone Correction')
+        self.lb322 = tk.Label(self.f322, text = '''Corrects timestamp for offset created by AIM \
 outputting the timestamps based on the export computer's settings, rather \
-than the measurement computer's time zone settings.'''
-                       ,wraplength=350)
+than the measurement computer's time zone settings.''', wraplength=350)
 
-        self.lb322.pack(pady=5,padx=10)
         self.correct4TZ = tk.IntVar()
         self.cb_TZcorrection = tk.Checkbutton(self.f322,
                                            text='Correct Time Zone',
                                            variable=self.correct4TZ,
                                            onvalue=1, offvalue=0,
                                            command=self.grey_press_input)
-        self.cb_TZcorrection.pack(pady=5, padx=10)
 
-        self.f3221 = tk.LabelFrame(self.f322, text='Export PCs TZ (current)')
-        self.tb_TZcurrent = tk.Entry(self.f3221, width=5)
+        self.lb_TZcurrent = tk.Label(self.f322, text='Export PCs TZ (current)')
+        self.tb_TZcurrent = tk.Entry(self.f322, width=5)
         self.tb_TZcurrent.insert(tk.END,0)
-        self.lb_units1 = tk.Label(self.f3221, text='hrs from UTC')
+        self.lb_units1 = tk.Label(self.f322, text='hrs from UTC')
 
-        self.f3221.pack(pady=5, padx=10, side=tk.LEFT, fill='x')
-        self.tb_TZcurrent.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb_units1.pack(pady=5, padx=10, side=tk.LEFT)
-
-        self.f3222 = tk.LabelFrame(self.f322, text='Meas. PCs TZ (desired)')
-        self.tb_TZdesired = tk.Entry(self.f3222, width=5)
-        self.tb_TZdesired.insert(tk.END,0)
-        self.lb_units2 = tk.Label(self.f3222, text='hrs from UTC')
-
-        self.f3222.pack(pady=5, padx=10, side=tk.RIGHT)
-        self.tb_TZdesired.pack(pady=5, padx=10, side=tk.LEFT)
-        self.lb_units2.pack(pady=5, padx=10, side=tk.RIGHT)
-#==============================================================================
+        self.lb_TZdesired = tk.Label(self.f322, text='Meas. PCs TZ (desired)')
+        self.tb_TZdesired = tk.Entry(self.f322, width=5)
+        self.tb_TZdesired.insert(tk.END, 0)
+        self.lb_units2 = tk.Label(self.f322, text='hrs from UTC')
 
 
-        self.plotresults = tk.IntVar()
-        self.cb_plot = tk.Checkbutton(self.f3,
-                                      text='Plot after each step',
-                                      variable=self.plotresults,
-                                      onvalue=True, offvalue=False)
-        self.cb_plot.pack()
+         # place all Processing Frame elements using grid
+        self.f3.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
+        self.f31.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
+        self.f311.grid(row=2, column=0, rowspan=1, columnspan=3, sticky=tk.NW, padx=5, pady=5)
+        self.tb2.grid(row=3, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.b311.grid(row=3, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.l311.grid(row=3, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+
+        self.f32.grid(row=14, column=1, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
+        self.f321.grid(row=14, column=1, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
+        self.tb3.grid(row=1, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.b321.grid(row=1, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.l321.grid(row=1, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+
+        self.f322.grid(row=18, column=1, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
+        self.lb322.grid(row=20, column=1, rowspan=3, columnspan=3, sticky=tk.NW, padx=5, pady=5)
+        self.cb_TZcorrection.grid(row=25, column=1, rowspan=2, columnspan=3, sticky=tk.N, padx=5, pady=5)
+
+        self.lb_TZcurrent.grid(row=28, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.tb_TZcurrent.grid(row=28, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.lb_units1.grid(row=28, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+
+        self.lb_TZdesired.grid(row=29, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.tb_TZdesired.grid(row=29, column=2, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.lb_units2.grid(row=29, column=3, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
+
+
+    def _create_processing_frame(self, mainFrame):
+
+
 
         # Create go button!
         self.bt_go = tk.Button(self.f3,

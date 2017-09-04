@@ -15,7 +15,7 @@ import CCNC
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import atmoscripts
 
-class GenericBaseGui(ttk.Frame):
+class GenericBaseGui(tk.Frame):
     '''
     Common gui class to be inherited by ccn_proccesing and cpc_processing
     '''
@@ -203,6 +203,7 @@ class GenericBaseGui(ttk.Frame):
         self.create_input_frame(mainFrame)
         self.create_output_frame(mainFrame)
         self.create_processing_frame(mainFrame)
+        # self.create_plot(mainFrame)
 
 
     def create_input_frame(self, mainFrame):
@@ -210,7 +211,7 @@ class GenericBaseGui(ttk.Frame):
         Draw the gui frame for data input options
         KJ - new version using grid
         """
-        self.f1 = ttk.LabelFrame(mainFrame, text='Input data')
+        self.f1 = tk.LabelFrame(mainFrame, text='Input data')
         self.b_open = tk.Button(self.f1, text='Select raw files', command=self.raw_file_dialog)
         self.lb_openFiles = tk.Listbox(self.f1) # original listbox had a scroll bar added
         self.forceReload = tk.IntVar()
@@ -229,7 +230,7 @@ class GenericBaseGui(ttk.Frame):
 # Variable check window
 #-----------------------------------------------------------
     def _alert_bad_input(self, message='Nothing to see here...'):
-         """
+        """
         Draw the gui for the bad input alert
         """
         self.top = tk.Toplevel()
