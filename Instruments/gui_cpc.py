@@ -18,17 +18,18 @@ import numpy as np
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-from gui_base import GenericBaseGui
+from Instruments.gui_base import GenericBaseGui
 
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import atmoscripts
-import CPC_TSI
 import ToolTip
+import Instruments.CPC_TSI
+
 
 class cpc_processing(GenericBaseGui):
 

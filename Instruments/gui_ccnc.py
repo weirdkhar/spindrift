@@ -17,16 +17,15 @@ import tkinter as tk
 from tkinter import ttk
 import numpy as np
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import CCNC
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import Instruments.CCNC
 import ToolTip
 
 import matplotlib
-matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
-from gui_base import GenericBaseGui
+from Instruments.gui_base import GenericBaseGui
 
 
 class ccn_processing(GenericBaseGui):
@@ -168,7 +167,7 @@ class ccn_processing(GenericBaseGui):
         self.cb_1s.select() # set selection
 
         # place all Output Frame elements using grid
-        self.f2.grid(row=2, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
+        self.f2.grid(row=2, column=0, rowspan=3, columnspan=3, sticky=tk.NSEW, padx=5)
         self.b_output.grid(column=1, row=1, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
         self.t_outputPath.grid(column=2, row=1, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
         self.lb1.grid(column=1, row=2, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
@@ -270,7 +269,7 @@ class ccn_processing(GenericBaseGui):
                                width=15)
 
         # place all Processing Frame elements using grid
-        self.f3.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
+        self.f3.grid(row=6, column=0, rowspan=18, columnspan=3, sticky=tk.NSEW, padx=5)
         self.f31.grid(row=10, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
         self.cb_qc.grid(row=1, column=1, rowspan=1, columnspan=1, sticky=tk.NW, padx=5, pady=5)
 
@@ -307,7 +306,7 @@ class ccn_processing(GenericBaseGui):
         test data - open web statistics data file and create a bar chart
         '''
         data = []
-        with open('webStatsHourly.txt', 'r') as file:
+        with open('Instruments/webStatsHourly.txt', 'r') as file:
             for line in file:
                 if re.match('[a-z]', line):
                     pass
@@ -339,15 +338,19 @@ class ccn_processing(GenericBaseGui):
         # create bar chart
         n = len(hour)
         ind = np.arange(n)
-        width = 0.5
+        width = 5
 
-        plot1 = ax.bar(ind, requests, width, color="#ccdbfa")
-        plot2 = ax.bar(ind+width, pages, width, color="#3f537a")
+
+        # plot1 = ax.bar(ind, requests, width, color="#ccdbfa")
+        # plot2 = ax.bar(ind+width, pages, width, color="#3f537a")
+
+        plot1 = ax.scatter(ind, requests, width, color="#ccdbfa")
+        plot2 = ax.scatter(ind+width, pages, width, color="#3f537a")
 
         # create labels & legend
         ax.set_ylabel('Number', color="#4F5561", fontsize=12)
         ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
-        ax.legend((plot1[0], plot2[0]), ('Requests', 'Pages'))
+        ax.legend((plot1, plot2), ('Requests', 'Pages'))
 
         self.f4 = tk.LabelFrame(mainFrame, text='Data Plot')
         self.f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)

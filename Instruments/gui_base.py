@@ -10,9 +10,9 @@ import threading
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
-import CCNC
+import Instruments.CCNC
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import atmoscripts
 
 class GenericBaseGui(tk.Frame):
@@ -221,7 +221,7 @@ class GenericBaseGui(tk.Frame):
         self.cb_forceReload.select()
 
         # place all Input Frame elements using grid
-        self.f1.grid(row=0, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5)
+        self.f1.grid(row=0, column=0, rowspan=2, columnspan=3, sticky=tk.NSEW, padx=5, pady=5)
         self.b_open.grid(column=1, row=1, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
         self.lb_openFiles.grid(column=1, row=2, columnspan=3, rowspan=1, sticky=tk.NSEW, padx=5, pady=5)
         self.cb_forceReload.grid(column=2, row=1, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
