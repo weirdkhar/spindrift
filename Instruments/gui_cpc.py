@@ -9,9 +9,6 @@ Useful documentation:
     http://pyinmyeye.blogspot.com.au/2012/08/tkinter-combobox-demo.html
     http://www.python-course.eu/tkinter_layout_management.php
 '''
-
-import os
-import sys
 import re
 import threading
 import numpy as np
@@ -21,18 +18,18 @@ from tkinter import ttk
 from Instruments.gui_base import GenericBaseGui
 
 import matplotlib
-matplotlib.use('TkAgg')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import atmoscripts
 import ToolTip
 import Instruments.CPC_TSI
 
 
 class cpc_processing(GenericBaseGui):
-
+    '''
+    CPC processing
+    '''
     def loadAndProcess_Multithread(self,
                                    output_filetype,
                                    output_time_res,
@@ -88,11 +85,12 @@ class cpc_processing(GenericBaseGui):
         self.isapp = isapp
         self.build_widgets()
 
-    def create_output_frame(self, mainFrame):
+    def create_output_frame_cpc(self, mainFrame):
         """
         Draw the gui frame for data output options
         KJ - new version using grid
         """
+        print('cpc.py create_output_frame')
         # create output path dialog
         self.f2 = tk.LabelFrame(mainFrame, text='Output data')
         self.b_output = tk.Button(self.f2,
@@ -184,7 +182,7 @@ class cpc_processing(GenericBaseGui):
         self.cb_12h.grid(column=3, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
         self.cb_1d.grid(column=3, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
 
-    def create_processing_frame(self, mainFrame):
+    def create_processing_frame_cpc(self, mainFrame):
         """
         Draw the gui frame for data processing options
         KJ - new version using grid
@@ -287,7 +285,7 @@ than the measurement computer's time zone settings.''', wraplength=350)
 
         self.bt_go.grid(row=30, column=1, columnspan=3, rowspan=1, sticky=tk.S, padx=5, pady=5)
 
-    def create_plot(self, mainFrame):
+    def create_plot_cpc(self, mainFrame):
         '''
         test data - open web statistics data file and create a bar chart
         '''

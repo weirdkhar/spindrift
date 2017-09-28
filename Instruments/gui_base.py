@@ -62,26 +62,63 @@ class GenericBaseGui(tk.Frame):
         self._build_status_window()
 
         # Setup input
-        output_time_res = [self.output_1s.get(),
-                           self.output_5s.get(),
-                           self.output_10s.get(),
-                           self.output_15s.get(),
-                           self.output_30s.get(),
-                           self.output_1m.get(),
-                           self.output_5m.get(),
-                           self.output_10m.get(),
-                           self.output_15m.get(),
-                           self.output_30m.get(),
-                           self.output_1h.get(),
-                           self.output_3h.get(),
-                           self.output_6h.get(),
-                           self.output_12h.get(),
-                           self.output_1d.get()]
-
+        output_time_res = [
+                self.output_1s.get(),
+                self.output_5s.get(),
+                self.output_10s.get(),
+                self.output_15s.get(),
+                self.output_30s.get(),
+                self.output_1m.get(),
+                self.output_5m.get(),
+                self.output_10m.get(),
+                self.output_15m.get(),
+                self.output_30m.get(),
+                self.output_1h.get(),
+                self.output_3h.get(),
+                self.output_6h.get(),
+                self.output_12h.get(),
+                self.output_1d.get()
+                ]
         # Change to boolean array
         output_time_res = [True if item == 1
                            else False
                            for item in output_time_res]
+
+        # output_time_res = []
+        # for x in range(0, 15):
+        #     output_time_res.append(False)
+        #
+        # if self.cb_time_resolution.get() == '1 second':
+        #     output_time_res[0] = True
+        # elif self.cb_time_resolution.get() == '5 seconds':
+        #     output_time_res[1] = True
+        # elif self.cb_time_resolution.get() == '10 seconds':
+        #     output_time_res[2] = True
+        # elif self.cb_time_resolution.get() == '15 seconds':
+        #     output_time_res[3] = True
+        # elif self.cb_time_resolution.get() == '30 seconds':
+        #     output_time_res[4] = True
+        # elif self.cb_time_resolution.get() == '1 minute':
+        #     output_time_res[5] = True
+        # elif self.cb_time_resolution.get() == '5 minutes':
+        #     output_time_res[6] = True
+        # elif self.cb_time_resolution.get() == '10 minutes':
+        #     output_time_res[7] = True
+        # elif self.cb_time_resolution.get() == '15 minutes':
+        #     output_time_res[8] = True
+        # elif self.cb_time_resolution.get() == '30 minutes':
+        #     output_time_res[9] = True
+        # elif self.cb_time_resolution.get() == '1 hour':
+        #     output_time_res[10] = True
+        # elif self.cb_time_resolution.get() == '3 hours':
+        #     output_time_res[11] = True
+        # elif self.cb_time_resolution.get() == '6 hours':
+        #     output_time_res[12] = True
+        # elif self.cb_time_resolution.get() == '12 hours':
+        #     output_time_res[13] = True
+        # elif self.cb_time_resolution.get() == '1 day':
+        #     output_time_res[14] = True
+
 
         if self.cb_file_freq.get() == 'Single file':
             concat_file_freq = 'all'

@@ -9,27 +9,23 @@ Useful documentation:
     http://pyinmyeye.blogspot.com.au/2012/08/tkinter-combobox-demo.html
     http://www.python-course.eu/tkinter_layout_management.php
 '''
-import os
-import sys
 import re
-import threading
 import tkinter as tk
 from tkinter import ttk
 import numpy as np
 
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import Instruments.CCNC
+from Instruments.gui_base import GenericBaseGui
 import ToolTip
 
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 
-from Instruments.gui_base import GenericBaseGui
-
-
 class ccn_processing(GenericBaseGui):
-
+    '''
+    CCN processing
+    '''
     def loadAndProcess_Multithread(self,
                                    output_filetype,
                                    output_time_res,
@@ -91,11 +87,12 @@ class ccn_processing(GenericBaseGui):
         self.build_widgets()
 
 
-    def create_output_frame(self, mainFrame):
+    def create_output_frame_ccn(self, mainFrame):
         """
         Draw the gui frame for data output options
         KJ - new version using grid
         """
+        print('ccnc.py create_output_frame')
         # create output path dialog
         self.f2 = tk.LabelFrame(mainFrame, text='Output data')
         self.b_output = tk.Button(self.f2,
@@ -130,7 +127,9 @@ class ccn_processing(GenericBaseGui):
         self.cb_SS.select()
         self.f21 = tk.LabelFrame(self.f2, text='Output time resolution')
 
-        # Declare checkbox variables - KJ - Change this to combo box
+        self.f21 = tk.LabelFrame(self.f2, text='Output time resolution')
+
+         # Declare checkbox variables - KJ - Change this to combo box
         self.output_1s = tk.IntVar()
         self.output_5s = tk.IntVar()
         self.output_10s = tk.IntVar()
@@ -195,7 +194,7 @@ class ccn_processing(GenericBaseGui):
         self.cb_12h.grid(column=3, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
         self.cb_1d.grid(column=3, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
 
-    def create_processing_frame(self, mainFrame):
+    def create_processing_frame_ccn(self, mainFrame):
         """
         Draw the gui frame for data processing options
         KJ - new version using grid
@@ -244,7 +243,7 @@ class ccn_processing(GenericBaseGui):
         self.tb_flow_rate_fit.insert(tk.END, 2)
 
         self.f322 = tk.LabelFrame(self.f3, text='Supersaturation calibration for atmospheric pressure')
-        self.lb322 = tk.Label(self.f322, text = 'Corrects reported SS for changes in atm. pressure between cal. site & measurement site. If calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010 hPa.', wraplength=350)
+        self.lb322 = tk.Label(self.f322, text='Corrects reported SS for changes in atm. pressure between cal. site & measurement site. If calibrated by DMT, cal. pressure is 830 hPa. Sea level pressure is 1010 hPa.', wraplength=350)
         self.correct4pressure = tk.IntVar()
         self.cb_pressCal = tk.Checkbutton(self.f322,
                                           text='Correct for pressure',
@@ -301,7 +300,7 @@ class ccn_processing(GenericBaseGui):
 
         self.bt_go.grid(row=24, column=1, columnspan=3, rowspan=1, sticky=tk.S, padx=5, pady=5)
 
-    def create_plot(self, mainFrame):
+    def create_plot_ccn(self, mainFrame):
         '''
         test data - open web statistics data file and create a bar chart
         '''

@@ -9,7 +9,7 @@ from tkinter import ttk
 from Instruments.gui_ccnc import ccn_processing
 from Instruments.gui_cpc import cpc_processing
 
-class App(ccn_processing):
+class App(ccn_processing, cpc_processing):
     '''
     Spindrift main application class
     '''
@@ -35,18 +35,15 @@ class App(ccn_processing):
 
         # from Instruments.gui_ccnc
         self.create_input_frame(tab_ccnc)
-        self.create_output_frame(tab_ccnc)
-        self.create_processing_frame(tab_ccnc)
-        self.create_plot(tab_ccnc)
+        self.create_output_frame_ccn(tab_ccnc)
+        self.create_processing_frame_ccn(tab_ccnc)
+        self.create_plot_ccn(tab_ccnc)
 
         # from Instruments.gui_cpc
         self.create_input_frame(tab_cpc)
-        self.create_output_frame(tab_cpc)
-        self.create_processing_frame(tab_cpc)
-        self.create_plot(tab_cpc)
-
-
-
+        self.create_output_frame_cpc(tab_cpc)
+        self.create_processing_frame_cpc(tab_cpc)
+        self.create_plot_cpc(tab_cpc)
 
 # Run the application
 APP_WINDOW = Tk()
