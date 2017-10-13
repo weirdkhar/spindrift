@@ -289,32 +289,9 @@ than the measurement computer's time zone settings.''', wraplength=350)
         '''
         test data - open web statistics data file and create a bar chart
         '''
-        data = []
-        with open('webStatsHourly.txt', 'r') as file:
-            for line in file:
-                if re.match('[a-z]', line):
-                    pass
-                else:
-                    data.extend(line.strip().split(','))
-
-        i = 0
-        hour = []
-        requests = []
-        pages = []
-        for token in data:
-            if re.match(r'\d', token):
-                if i == 0:
-                    token = int(token)
-                    hour.append(token)
-                    i = 1
-                elif i == 1:
-                    token = int(token)
-                    requests.append(token)
-                    i = 2
-                elif i == 2:
-                    token = int(token)
-                    pages.append(token)
-                    i = 0
+        hour = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        requests = [5, 13, 18, 7, 8, 45, 54, 33, 12, 78, 99, 110]
+        pages = [7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84]
 
         fig1 = Figure(figsize=(12, 10), dpi=100)
         ax = fig1.add_subplot(1, 1, 1)

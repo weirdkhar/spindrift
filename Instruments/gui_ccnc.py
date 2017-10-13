@@ -10,11 +10,13 @@ Useful documentation:
     http://www.python-course.eu/tkinter_layout_management.php
 '''
 import re
+import threading
+import pandas as pd
 import tkinter as tk
 from tkinter import ttk
 import numpy as np
 
-import Instruments.CCNC
+import Instruments.CCNC as CCNC
 from Instruments.gui_base import GenericBaseGui
 import ToolTip
 
@@ -26,6 +28,25 @@ class ccn_processing(GenericBaseGui):
     '''
     CCN processing
     '''
+    def __init__(self, isapp=True):
+        """
+        Initialise the gui
+        KJ - new version using grid
+        """
+        tk.Frame.__init__(self, name='ccnprocessing')
+        self.grid(row=0, column=0, sticky=tk.NSEW)
+        self.master.title('DMT CCN Processing')
+        self.master.geometry('1760x1160')    # original 880x560
+        self.isapp = isapp
+        self.build_widgets()
+        self.globalMainFrame = ''
+
+    def __repr__(self):
+        return 'ccn_processing()'
+
+    def __str__(self):
+        return 'member of ccn_processing'
+
     def loadAndProcess_Multithread(self,
                                    output_filetype,
                                    output_time_res,
@@ -34,7 +55,7 @@ class ccn_processing(GenericBaseGui):
                                    flow_cal_df):
 
         # Call processing function
-        CCNC.LoadAndProcess(ccn_raw_path=self.raw_path,
+        final_file = CCNC.LoadAndProcess(ccn_raw_path=self.raw_path,
                             ccn_output_path=self.output_path,
                             ccn_output_filetype=output_filetype,
                             filename_base='CCN',
@@ -54,8 +75,8 @@ class ccn_processing(GenericBaseGui):
                             gui_mode=True,
                             gui_mainloop=self.w_status)
 
-        self.finished_window()
-
+        self.finished_window()  # draw Data Processing Complete! window
+        self.create_plot_ccn(final_file)
 
 #-----------------------------------------------------------
 # GUI Functionality
@@ -74,19 +95,6 @@ class ccn_processing(GenericBaseGui):
 #-----------------------------------------------------------
 # GUI Widgets
 #-----------------------------------------------------------
-    def __init__(self, isapp=True):
-        """
-        Initialise the gui
-        KJ - new version using grid
-        """
-        tk.Frame.__init__(self, name='ccnprocessing')
-        self.grid(row=0, column=0, sticky=tk.NSEW)
-        self.master.title('DMT CCN Processing')
-        self.master.geometry('1760x1160')    # original 880x560
-        self.isapp = isapp
-        self.build_widgets()
-
-
     def create_output_frame_ccn(self, mainFrame):
         """
         Draw the gui frame for data output options
@@ -119,51 +127,24 @@ class ccn_processing(GenericBaseGui):
                                          width=15)
         self.cb_file_freq.current(2)  # set selection
 
+        # Create output output time resolution combobox
+        output_time_resolution = ['1 second', '5 seconds', '10 seconds', '15 seconds',
+                                  '30 seconds', '1 minute', '5 minutes', '10 minutes',
+                                  '15 minutes', '30 minutes', '1 hour', '6 hours',
+                                  '12 hours', '1 day']
+        self.lb3 = tk.Label(self.f2, text='Select output time resolution')
+        self.cb_output_time_resolution = ttk.Combobox(self.f2,
+                                                      values=output_time_resolution,
+                                                      state='readonly',
+                                                      width=15)
+        self.cb_output_time_resolution.current(0)  # set selection to 1 second
+
         # Create output supersaturation checkbox
         self.split_SS = tk.IntVar()
         self.cb_SS = tk.Checkbutton(self.f2,
                                     text='Split by supersaturation',
                                     variable=self.split_SS)
         self.cb_SS.select()
-        self.f21 = tk.LabelFrame(self.f2, text='Output time resolution')
-
-        self.f21 = tk.LabelFrame(self.f2, text='Output time resolution')
-
-         # Declare checkbox variables - KJ - Change this to combo box
-        self.output_1s = tk.IntVar()
-        self.output_5s = tk.IntVar()
-        self.output_10s = tk.IntVar()
-        self.output_15s = tk.IntVar()
-        self.output_30s = tk.IntVar()
-        self.output_1m = tk.IntVar()
-        self.output_5m = tk.IntVar()
-        self.output_10m = tk.IntVar()
-        self.output_15m = tk.IntVar()
-        self.output_30m = tk.IntVar()
-        self.output_1h = tk.IntVar()
-        self.output_3h = tk.IntVar()
-        self.output_6h = tk.IntVar()
-        self.output_12h = tk.IntVar()
-        self.output_1d = tk.IntVar()
-
-        # Create checkboxes
-        self.cb_1s = tk.Checkbutton(self.f21, text='1 second', variable=self.output_1s)
-        self.cb_5s = tk.Checkbutton(self.f21, text='5 seconds', variable=self.output_5s)
-        self.cb_10s = tk.Checkbutton(self.f21, text='10 seconds', variable=self.output_10s)
-        self.cb_15s = tk.Checkbutton(self.f21, text='15 seconds', variable=self.output_15s)
-        self.cb_30s = tk.Checkbutton(self.f21, text='30 seconds', variable=self.output_30s)
-        self.cb_1m = tk.Checkbutton(self.f21, text='1 minute', variable=self.output_1m)
-        self.cb_5m = tk.Checkbutton(self.f21, text='5 minutes', variable=self.output_5m)
-        self.cb_10m = tk.Checkbutton(self.f21, text='10 minutes', variable=self.output_10m)
-        self.cb_15m = tk.Checkbutton(self.f21, text='15 minutes', variable=self.output_15m)
-        self.cb_30m = tk.Checkbutton(self.f21, text='30 minutes', variable=self.output_30m)
-        self.cb_1h = tk.Checkbutton(self.f21, text='1 hour', variable=self.output_1h)
-        self.cb_3h = tk.Checkbutton(self.f21, text='3 hours', variable=self.output_3h)
-        self.cb_6h = tk.Checkbutton(self.f21, text='6 hours', variable=self.output_6h)
-        self.cb_12h = tk.Checkbutton(self.f21, text='12 hours', variable=self.output_12h)
-        self.cb_1d = tk.Checkbutton(self.f21, text='1 day', variable=self.output_1d)
-
-        self.cb_1s.select() # set selection
 
         # place all Output Frame elements using grid
         self.f2.grid(row=2, column=0, rowspan=3, columnspan=3, sticky=tk.NSEW, padx=5)
@@ -173,32 +154,16 @@ class ccn_processing(GenericBaseGui):
         self.cb_output_filetype.grid(column=2, row=2, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
         self.lb2.grid(column=1, row=3, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
         self.cb_file_freq.grid(column=2, row=3, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
+        self.lb3.grid(column=1, row=3, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
+        self.cb_output_time_resolution.grid(column=2, row=3, columnspan=1, rowspan=1, sticky=tk.NE, padx=5, pady=5)
         self.cb_SS.grid(column=1, row=4, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.f21.grid(column=1, row=5, columnspan=3, rowspan=5, sticky=tk.NW, padx=5, pady=5)
-
-        self.cb_1s.grid(column=1, row=5, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_5s.grid(column=1, row=6, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_10s.grid(column=1, row=7, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_15s.grid(column=1, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_30s.grid(column=1, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-
-        self.cb_1m.grid(column=2, row=5, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_5m.grid(column=2, row=6, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_10m.grid(column=2, row=7, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_15m.grid(column=2, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_30m.grid(column=2, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-
-        self.cb_1h.grid(column=3, row=5, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_3h.grid(column=3, row=6, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_6h.grid(column=3, row=7, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_12h.grid(column=3, row=8, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
-        self.cb_1d.grid(column=3, row=9, columnspan=1, rowspan=1, sticky=tk.NW, padx=5, pady=5)
 
     def create_processing_frame_ccn(self, mainFrame):
         """
         Draw the gui frame for data processing options
         KJ - new version using grid
         """
+        self.globalMainFrame = mainFrame
         self.f3 = tk.LabelFrame(mainFrame, text='Processing options')
 
         # Data mask/removal frame
@@ -300,42 +265,23 @@ class ccn_processing(GenericBaseGui):
 
         self.bt_go.grid(row=24, column=1, columnspan=3, rowspan=1, sticky=tk.S, padx=5, pady=5)
 
-    def create_plot_ccn(self, mainFrame):
+    def create_plot_ccn(self, data):
         '''
-        test data - open web statistics data file and create a bar chart
+        plot data!
         '''
-        data = []
-        with open('Instruments/webStatsHourly.txt', 'r') as file:
-            for line in file:
-                if re.match('[a-z]', line):
-                    pass
-                else:
-                    data.extend(line.strip().split(','))
+        df = pd.read_csv(data['path'])
+        df.columns = [c.replace(' ', '_') for c in df.columns]  # remove spaces in column names
+        print(df['T1_Read'])
 
-        i = 0
-        hour = []
-        requests = []
-        pages = []
-        for token in data:
-            if re.match(r'\d', token):
-                if i == 0:
-                    token = int(token)
-                    hour.append(token)
-                    i = 1
-                elif i == 1:
-                    token = int(token)
-                    requests.append(token)
-                    i = 2
-                elif i == 2:
-                    token = int(token)
-                    pages.append(token)
-                    i = 0
+        hour = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        requests = [5, 13, 18, 7, 8, 45, 54, 33, 12, 78, 99, 110]
+        pages = [7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84]
 
         fig1 = Figure(figsize=(13, 11), dpi=100)
         ax = fig1.add_subplot(1, 1, 1)
 
         # create bar chart
-        n = len(hour)
+        n = len(df['timestamp'])
         ind = np.arange(n)
         width = 5
 
@@ -343,15 +289,15 @@ class ccn_processing(GenericBaseGui):
         # plot1 = ax.bar(ind, requests, width, color="#ccdbfa")
         # plot2 = ax.bar(ind+width, pages, width, color="#3f537a")
 
-        plot1 = ax.scatter(ind, requests, width, color="#ccdbfa")
-        plot2 = ax.scatter(ind+width, pages, width, color="#3f537a")
+        plot1 = ax.scatter(ind, df['T1_Read'], width, color="#ccdbfa")
+        plot2 = ax.scatter(ind+width, df['T_Inlet'], width, color="#3f537a")
 
         # create labels & legend
-        ax.set_ylabel('Number', color="#4F5561", fontsize=12)
+        ax.set_ylabel('Value', color="#4F5561", fontsize=12)
         ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
-        ax.legend((plot1, plot2), ('Requests', 'Pages'))
+        ax.legend((plot1, plot2), ('T1 Read', 'T inlet'))
 
-        self.f4 = tk.LabelFrame(mainFrame, text='Data Plot')
+        self.f4 = tk.LabelFrame(self.globalMainFrame, text='Data Plot')
         self.f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)
 
         canvas = FigureCanvasTkAgg(fig1, self.f4)
