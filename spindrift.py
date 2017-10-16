@@ -33,17 +33,15 @@ class App(ccn_processing, cpc_processing):
         frame.grid(row=0, column=0, sticky=NSEW)
         self.notebook.grid(sticky=NSEW, padx=5)
 
-        # from gui_base
-        self.create_input_frame(tab_ccnc)
         # from Instruments.gui_ccnc
+        self.create_input_frame_ccn(tab_ccnc)
         self.create_output_frame_ccn(tab_ccnc)
         self.create_processing_frame_ccn(tab_ccnc)
 
-        # from gui_base
-        # self.create_input_frame(tab_cpc)  # >>> conflict!!
         # from Instruments.gui_cpc
-        # self.create_output_frame_cpc(tab_cpc)
-        # self.create_processing_frame_cpc(tab_cpc)
+        self.create_input_frame_cpc(tab_cpc)
+        self.create_output_frame_cpc(tab_cpc)
+        self.create_processing_frame_cpc(tab_cpc)
         # self.create_plot_cpc(tab_cpc)
 
 # Run the application

@@ -252,6 +252,7 @@ def LoadAndProcess(ccn_raw_path=None,
                 ccn_data = load_ccn(ccn_raw_path,
                                     load_from_filetype,
                                     substring=file)
+            # plot_me(ccn_data, plot_each_step, 'CCN Number Conc', 'raw')
 
         # Calculate CCN counting uncertainty
         ccn_data = uncertainty_calc(ccn_data, 1, np.sqrt(ccn_data['CCN Number Conc']))
@@ -260,6 +261,7 @@ def LoadAndProcess(ccn_raw_path=None,
         if QC:
             ccn_data = DataQC(ccn_data)
             save_as(ccn_data, ccn_output_path, 'QC', ccn_output_filetype, file)
+            # plot_me(ccn_data, plot_each_step,'CCN Number Conc', 'QC')
 
         # Perform flow calibration if data is provided
         if flow_cal_file is not None:
@@ -269,6 +271,7 @@ def LoadAndProcess(ccn_raw_path=None,
                                 set_flow_rate=flow_setpt,
                                 polydeg=flow_polyDeg)
             save_as(ccn_data, ccn_output_path, 'flowCal', ccn_output_filetype, file)
+            # plot_me(ccn_data, plot_each_step,'CCN Number Conc','flow cal')
 
         elif flow_cal_df is not None:
             ccn_data = flow_cal(ccn_data,
@@ -277,6 +280,7 @@ def LoadAndProcess(ccn_raw_path=None,
                                 polydeg=flow_polyDeg)
 
             save_as(ccn_data, ccn_output_path, 'flowCal', ccn_output_filetype, file)
+            # plot_me(ccn_data, plot_each_step,'CCN Number Conc','flow cal')
 
         # Calibrate supersaturation
         ccn_data = ss_cal(ccn_data, press_meas, press_cal)
@@ -286,15 +290,18 @@ def LoadAndProcess(ccn_raw_path=None,
         # Correct for inlet losses #xkcd
     #    ccn_data = inlet_corrections(ccn_data, IE)
     #    save_as(ccn_data,ccn_output_data_path,'IE',ccn_output_filetype)
+    #   plot_me(ccn_data, plot_each_step,'CCN Number Conc', 'IE')
 
         # Filter for logged events
         if mask_period_file is not None:
             ccn_data = atmoscripts.log_filter(ccn_data, ccn_raw_path, mask_period_file)
             save_as(ccn_data, ccn_output_path, 'logFilt', ccn_output_filetype, file)
+            # plot_me(ccn_data, plot_each_step,'CCN Number Conc','log filter')
 
         elif mask_period_timestamp_df is not None:
             ccn_data = atmoscripts.log_filter(ccn_data, log_mask_df=mask_period_timestamp_df)
             save_as(ccn_data, ccn_output_path, 'logFilt', ccn_output_filetype, file)
+            # plot_me(ccn_data, plot_each_step,'CCN Number Conc','log filter')
 
         # Filter for exhaust #xkcd
     #    save_as(ccn_data,ccn_output_path,'exhaustfilt',ccn_output_filetype)
@@ -302,6 +309,7 @@ def LoadAndProcess(ccn_raw_path=None,
         # Separate into different supersaturations
         ccn_data = ss_split(ccn_data, split_by_supersaturation)
         save_as(ccn_data, ccn_output_path, 'ssSplit', ccn_output_filetype, file)
+        # plot_me(ccn_data, plot_each_step,None,'SS Split')
 
         # Resample timebase and calculate uncertainties
         ccn_data = timebase_resampler(ccn_data,
@@ -318,6 +326,18 @@ def LoadAndProcess(ccn_raw_path=None,
     final_file = {'path': ccn_output_path + '/' + file, 'type': ccn_output_filetype}
     return final_file
 # end LoadAndProcess
+
+#  unused
+def plot_me(ccn_data, plot_each_step, var=None, title = ''):
+    if plot_each_step:
+        if var is None:
+            # Plot everything
+            plt.plot(ccn_data)
+        else:
+            plt.plot(ccn_data[var])
+        plt.title(title)
+        plt.show()
+    return
 
 def get_raw_filelist(ccn_output_path, output_filetype, substring='raw'):
     '''
