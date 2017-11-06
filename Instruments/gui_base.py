@@ -3,7 +3,7 @@ Generic gui base classes
 Common classes to be inherited by ccn_proccesing and cpc_processing
 Author: Kristina Johnson, Ruhi Humphries
 '''
-
+import sys
 import tkinter as tk
 from tkinter import ttk
 

@@ -18,9 +18,11 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from datetime import datetime as dt
 
 import Instruments.CCNC as CCNC
 from Instruments.gui_base import GenericBaseGui
+from Instruments.gui_plot import AnnotateablePlot
 import ToolTip
 
 import matplotlib
@@ -29,7 +31,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 import atmoscripts
 
-class ccn_processing(GenericBaseGui):
+class ccn_processing(GenericBaseGui, AnnotateablePlot):
     '''
     CCN processing
     '''
@@ -166,6 +168,8 @@ class ccn_processing(GenericBaseGui):
                                   flow_cal_df))
         thread.start()
 
+
+
     def loadAndProcess_Multithread(self,
                                    output_filetype,
                                    output_time_res,
@@ -195,6 +199,8 @@ class ccn_processing(GenericBaseGui):
                             gui_mainloop=self.w_status)
 
         self.finished_window()  # draw Data Processing Complete! window
+        
+        # get final file when thread has finished exeuting <<< LOOK INTO THIS
         self.create_plot_ccn(final_file)
 
 #-----------------------------------------------------------
@@ -398,30 +404,45 @@ class ccn_processing(GenericBaseGui):
         plot data!
         '''
         df = pd.read_csv(data['path'])
+
+        print(df)
         df.columns = [c.replace(' ', '_') for c in df.columns]  # remove spaces in column names
 
-        fig1 = Figure(figsize=(13, 11), dpi=100)
-        ax = fig1.add_subplot(1, 1, 1)
+        # print list of all the column names
+        print('all columns:', df.columns.tolist())
 
-        # create bar chart
-        n = len(df['timestamp'])
-        ind = np.arange(n)
-        width = 5
 
-        plot1 = ax.scatter(ind, df['T1_Read'], width, color="#ccdbfa")
-        plot2 = ax.scatter(ind, df['T_Inlet'], width, color="#3f537a")
+        # time for X axis
+        time = df['timestamp']
 
-        # create labels & legend
-        ax.set_ylabel('Value', color="#4F5561", fontsize=12)
-        ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
-        ax.legend((plot1, plot2), ('T1 Read', 'T inlet'))
+        # define the columns for the Y axis
+        columns = [df['T1_Read'], df['T_Inlet']]
+        names = ['T1_Read', 'T_Inlet']
 
         self.ccn_f4 = tk.LabelFrame(self.globalMainFrame, text='Data Plot')
         self.ccn_f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)
 
-        canvas = FigureCanvasTkAgg(fig1, self.ccn_f4)
-        canvas.show()
-        canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=20, sticky=(tk.NSEW), padx=5, pady=5)
+        PLOT = AnnotateablePlot(self.ccn_f4, time, columns, names)
+
+        # ax = fig1.add_subplot(1, 1, 1)
+        #
+        # # create bar chart
+        # n = len(df['timestamp'])
+        # ind = np.arange(n)
+        # width = 5
+        #
+        # plot1 = ax.scatter(ind, df['T1_Read'], width, color="#ccdbfa")
+        # plot2 = ax.scatter(ind, df['T_Inlet'], width, color="#3f537a")
+        #
+        # # create labels & legend
+        # ax.set_ylabel('Value', color="#4F5561", fontsize=12)
+        # ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
+        # ax.legend((plot1, plot2), ('T1 Read', 'T inlet'))
+
+
+        # canvas = FigureCanvasTkAgg(fig1, self.ccn_f4)
+        # canvas.show()
+        # canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=20, sticky=(tk.NSEW), padx=5, pady=5)
 
         self.ccn_f41 = tk.LabelFrame(self.ccn_f4, text='Navigation Tools')
         self.ccn_f41.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
