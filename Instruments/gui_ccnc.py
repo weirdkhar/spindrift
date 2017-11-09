@@ -218,22 +218,8 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                     print('final_file is ', final_file)
                     PLOTS.append(final_file)
 
-        # Plot all the output files.  Change to doing this for all in PLOTS.
-        self.create_plot_ccn(final_file)
-
-
-
-
-        # process_flag = False
-        # while (threading.active_count() > 0):
-        #     if threading.active_count() == 2:
-        #         process_flag = True
-        #         print('threading.active_count() = ', threading.active_count())
-        #     if ((threading.active_count() == 1) and (process_flag == True)):
-        #         print('threading.active_count() is now < 2')
-        #         break
-
-
+        # Plot all the output files.
+        self.create_plot_ccn(PLOTS)
 
 #-----------------------------------------------------------
 # GUI Widgets
@@ -431,11 +417,17 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
 #-----------------------------------------------------------
 # Plot
 #-----------------------------------------------------------
-    def create_plot_ccn(self, data):
+    def create_plot_ccn(self, data_list):
         '''
         plot data!
         '''
-        df = pd.read_csv(data['path'])
+        # Combine multiple files into one DataFrame.
+        frames = []
+        for d in data_list:
+            tmp_frame = pd.read_csv(d['path'])
+            frames.append(tmp_frame)
+
+        df = pd.concat(frames)
 
         df.columns = [c.replace(' ', '_') for c in df.columns]  # remove spaces in column names
         # print list of all the column names
@@ -450,8 +442,8 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         new_time = pd.to_datetime(dates + ' ' + times)  # create new datetime dataframe
 
         # define test columns for the Y axis
-        columns = [df['T1_Read'], df['T_Inlet']]
-        names = ['T1_Read', 'T_Inlet']
+        columns = [df['T1_Read'], df['T_Inlet'], df['Laser_Current']]
+        names = ['T1_Read', 'T_Inlet', 'Laser Current']
 
         self.ccn_f4 = tk.LabelFrame(self.globalMainFrame, text='Data Plot')
         self.ccn_f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)
