@@ -323,8 +323,8 @@ def LoadAndProcess(ccn_raw_path=None,
     if os.path.isfile('netcdf_global_attributes.temp'):
         os.remove('netcdf_global_attributes.temp')
 
-    final_file = {'path': ccn_output_path + '/' + file, 'type': ccn_output_filetype}
-    return final_file
+    return
+
 # end LoadAndProcess
 
 #  unused

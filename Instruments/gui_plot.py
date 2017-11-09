@@ -22,10 +22,6 @@ class AnnotateablePlot():
         self.columns = cols
         self.names = names
 
-        print('self.timestamp= ', self.timestamp)
-        print('self.columns = ', self.columns)
-        print('self.names = ', self.names)
-
         # event coordinates
         self.x1 = None
         self.y1 = None

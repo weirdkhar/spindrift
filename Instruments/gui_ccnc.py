@@ -11,6 +11,7 @@ Useful documentation:
 '''
 import re
 import os
+import time
 import sys
 import threading
 import pandas as pd
@@ -168,8 +169,6 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                                   flow_cal_df))
         thread.start()
 
-
-
     def loadAndProcess_Multithread(self,
                                    output_filetype,
                                    output_time_res,
@@ -177,8 +176,9 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                                    mask_df,
                                    flow_cal_df):
 
-        # Call processing function
-        final_file = CCNC.LoadAndProcess(ccn_raw_path=self.ccn_raw_path,
+        # Call processing function.
+        # When this function calls return at its end, the thread is terminated automatically.
+        CCNC.LoadAndProcess(ccn_raw_path=self.ccn_raw_path,
                             ccn_output_path=self.ccn_output_path,
                             ccn_output_filetype=output_filetype,
                             filename_base='CCN',
@@ -199,9 +199,41 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                             gui_mainloop=self.w_status)
 
         self.finished_window()  # draw Data Processing Complete! window
-        
-        # get final file when thread has finished exeuting <<< LOOK INTO THIS
+
+        # Get all the output files
+        FILE_PATH = self.ccn_output_path
+        FILE_LIST = []
+        PLOTS = []
+        for root, directories, filenames in os.walk(FILE_PATH):
+            for filename in filenames:
+                FILE_LIST.append(filename)
+
+        for filename in FILE_LIST:
+            # Find weekly, daily, monthly, single only files
+            if re.match('CCN_raw_[0-9]{4}_wk[0-9]{2}.csv', filename) or \
+                re.match('CCN_raw_[0-9]{6}.csv', filename) or \
+                re.match('CCN_raw[0-9]{4}.csv', filename) or \
+                re.match('CCN_raw.csv', filename):
+                    final_file = {'path': self.ccn_output_path + '/' + filename, 'type': output_filetype}
+                    print('final_file is ', final_file)
+                    PLOTS.append(final_file)
+
+        # Plot all the output files.  Change to doing this for all in PLOTS.
         self.create_plot_ccn(final_file)
+
+
+
+
+        # process_flag = False
+        # while (threading.active_count() > 0):
+        #     if threading.active_count() == 2:
+        #         process_flag = True
+        #         print('threading.active_count() = ', threading.active_count())
+        #     if ((threading.active_count() == 1) and (process_flag == True)):
+        #         print('threading.active_count() is now < 2')
+        #         break
+
+
 
 #-----------------------------------------------------------
 # GUI Widgets
@@ -405,15 +437,17 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         '''
         df = pd.read_csv(data['path'])
 
-        print(df)
         df.columns = [c.replace(' ', '_') for c in df.columns]  # remove spaces in column names
-
         # print list of all the column names
-        print('all columns:', df.columns.tolist())
-
+        # print('all columns:', df.columns.tolist())
 
         # time for X axis
-        time = df['timestamp']
+        # get 24/04/2016 from df['timestamp']
+        # get 23:00:01 from df['Time']
+        dates = pd.Series(df['timestamp'])
+        times = pd.Series(df['Time'])
+        dates = dates.str.split().str.get(0)            # get just the date part of timestamp
+        new_time = pd.to_datetime(dates + ' ' + times)  # create new datetime dataframe
 
         # define the columns for the Y axis
         columns = [df['T1_Read'], df['T_Inlet']]
@@ -422,7 +456,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.ccn_f4 = tk.LabelFrame(self.globalMainFrame, text='Data Plot')
         self.ccn_f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)
 
-        PLOT = AnnotateablePlot(self.ccn_f4, time, columns, names)
+        PLOT = AnnotateablePlot(self.ccn_f4, new_time, columns, names)
 
         # ax = fig1.add_subplot(1, 1, 1)
         #
@@ -447,7 +481,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.ccn_f41 = tk.LabelFrame(self.ccn_f4, text='Navigation Tools')
         self.ccn_f41.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
 
-        toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)
+        toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)     # canvas not defined <<<<<
         toolbar.update()
         canvas._tkcanvas.grid(row=0, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
 
