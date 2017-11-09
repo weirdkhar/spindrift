@@ -449,7 +449,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         dates = dates.str.split().str.get(0)            # get just the date part of timestamp
         new_time = pd.to_datetime(dates + ' ' + times)  # create new datetime dataframe
 
-        # define the columns for the Y axis
+        # define test columns for the Y axis
         columns = [df['T1_Read'], df['T_Inlet']]
         names = ['T1_Read', 'T_Inlet']
 
@@ -457,33 +457,6 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.ccn_f4.grid(row=0, column=5, rowspan=20, columnspan=20, sticky=(tk.NSEW), padx=20)
 
         PLOT = AnnotateablePlot(self.ccn_f4, new_time, columns, names)
-
-        # ax = fig1.add_subplot(1, 1, 1)
-        #
-        # # create bar chart
-        # n = len(df['timestamp'])
-        # ind = np.arange(n)
-        # width = 5
-        #
-        # plot1 = ax.scatter(ind, df['T1_Read'], width, color="#ccdbfa")
-        # plot2 = ax.scatter(ind, df['T_Inlet'], width, color="#3f537a")
-        #
-        # # create labels & legend
-        # ax.set_ylabel('Value', color="#4F5561", fontsize=12)
-        # ax.set_xlabel('Hour', color="#4F5561", fontsize=12)
-        # ax.legend((plot1, plot2), ('T1 Read', 'T inlet'))
-
-
-        # canvas = FigureCanvasTkAgg(fig1, self.ccn_f4)
-        # canvas.show()
-        # canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=20, sticky=(tk.NSEW), padx=5, pady=5)
-
-        self.ccn_f41 = tk.LabelFrame(self.ccn_f4, text='Navigation Tools')
-        self.ccn_f41.grid(row=0, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
-
-        toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)     # canvas not defined <<<<<
-        toolbar.update()
-        canvas._tkcanvas.grid(row=0, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
 
 #-----------------------------------------------------------
 # GUI Functionality

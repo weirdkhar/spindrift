@@ -32,7 +32,7 @@ class AnnotateablePlot():
 
         # plot variables
         self.width = 2
-        self.fig1 = plt.figure()    # Figure(figsize=(13, 11), dpi=100)
+        self.fig1 = plt.figure(figsize=(13, 11), dpi=100)    # Figure(figsize=(13, 11), dpi=100)
         self.ax = self.fig1.add_subplot(1, 1, 1)
 
         # plots
@@ -55,15 +55,23 @@ class AnnotateablePlot():
         self.colours = self.colour_map(linear_space)
 
         for i in range(0, len(self.columns)):
-            self.plot_list.append(plt.plot(self.timestamp, self.columns[i], color=self.colours[i], linestyle='None', marker='o', markersize=2, picker=3))
+            self.plot_list.append(self.ax.plot(self.timestamp, self.columns[i], color=self.colours[i], linestyle='None', marker='o', markersize=2, picker=3))
             self.patch_list.append(mpatches.Patch(color=self.colours[i], label=self.names[i]))
 
-        self.ax.legend(self.plot_list, self.patch_list)
-        # plt.show()
+        self.ax.legend(handles=self.patch_list)
+
+
         canvas = FigureCanvasTkAgg(self.fig1, tk_frame)
         canvas.show()
         canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=20, sticky=(tk.NSEW), padx=5, pady=5)
 
+        # navigation toolbar
+        self.ccn_f41 = tk.LabelFrame(tk_frame, text='Navigation Tools')
+        self.ccn_f41.grid(row=2, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
+
+        toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)
+        toolbar.update()
+        canvas._tkcanvas.grid(row=2, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
 
         # disconnect things later
         # self.fig1.canvas.mpl_disconnect(self.click)
@@ -244,7 +252,3 @@ class AnnotateablePlot():
                     y = 'y:' + str(self.annotated[j]['y'])
                     string = string + x + ' ' + y + ' - ' + self.annotated[j]['annotation'] + '\n'
         return string
-
-# draw!
-# PLOT = AnnotateablePlot()
-# plt.show()
