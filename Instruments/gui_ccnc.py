@@ -26,10 +26,6 @@ from Instruments.gui_base import GenericBaseGui
 from Instruments.gui_plot import AnnotateablePlot
 import ToolTip
 
-import matplotlib
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-
 import atmoscripts
 
 class ccn_processing(GenericBaseGui, AnnotateablePlot):
@@ -48,6 +44,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.isapp = isapp
         self.globalMainFrame = ''
 
+
     def __repr__(self):
         return 'ccn_processing()'
 
@@ -59,6 +56,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         Once all parameters have been chosen, checks all the input values and
         begins the processing.
         '''
+        self.plot_list = []
 
         # Initialise
         msg = 'There is an error with your input! \n'
@@ -168,6 +166,8 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                                   mask_df,
                                   flow_cal_df))
         thread.start()
+        # thread.join() stalls app FOREVER
+
 
     def loadAndProcess_Multithread(self,
                                    output_filetype,
@@ -216,10 +216,11 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                 re.match('CCN_raw.csv', filename):
                     final_file = {'path': self.ccn_output_path + '/' + filename, 'type': output_filetype}
                     print('final_file is ', final_file)
-                    PLOTS.append(final_file)
+                    self.plot_list.append(final_file)
 
+        print('number of threads = ', threading.enumerate())    # number = returns 2 objects - main and Thread1
         # Plot all the output files.
-        self.create_plot_ccn(PLOTS)
+        # self.create_plot_ccn(PLOTS)   # << Move this out of the thread.  GUIs do not like threads!
 
 #-----------------------------------------------------------
 # GUI Widgets

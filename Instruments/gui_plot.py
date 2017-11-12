@@ -3,14 +3,15 @@ AnnotateablePlot
 Draw and interact with an annotateable plot
 Author: Kristina Johnson
 '''
+import numpy as np
+import tkinter as tk
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from datetime import datetime as dt
-import tkinter as tk
-import numpy as np
+
 
 class AnnotateablePlot():
     '''
@@ -29,6 +30,9 @@ class AnnotateablePlot():
         self.y2 = None
         self.coords = []        # list of selected points
         self.annotated = []     # list of annotated points
+        self.annotation_mode = False    # annotation mode added to avoid mouse event
+                                        # conflict with the Matplotlib canvas
+                                        # navigation tools
 
         # plot variables
         self.width = 2
@@ -44,6 +48,8 @@ class AnnotateablePlot():
         self.click = self.fig1.canvas.mpl_connect('pick_event', self.on_click)
         self.press = self.fig1.canvas.mpl_connect('button_press_event', self.on_press)
         self.drag = self.fig1.canvas.mpl_connect('button_release_event', self.on_release)
+        self.key_press = self.fig1.canvas.mpl_connect('key_press_event', self.on_key_press)
+        self.key_release = self.fig1.canvas.mpl_connect('key_release_event', self.on_key_release)
 
         # create axis labels & legend
         self.ax.set_ylabel('Number', color="#555555", fontsize=12)
@@ -60,7 +66,6 @@ class AnnotateablePlot():
 
         self.ax.legend(handles=self.patch_list)
 
-
         canvas = FigureCanvasTkAgg(self.fig1, tk_frame)
         canvas.show()
         canvas.get_tk_widget().grid(row=1, column=0, columnspan=20, rowspan=20, sticky=(tk.NSEW), padx=5, pady=5)
@@ -69,8 +74,8 @@ class AnnotateablePlot():
         self.ccn_f41 = tk.LabelFrame(tk_frame, text='Navigation Tools')
         self.ccn_f41.grid(row=2, column=0, rowspan=1, columnspan=1, sticky=(tk.SW), padx=5)
 
-        toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)
-        toolbar.update()
+        self.toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)
+        self.toolbar.update()
         canvas._tkcanvas.grid(row=2, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
 
         # disconnect things later
@@ -135,8 +140,20 @@ class AnnotateablePlot():
                 print('point in rectangle = ', point)
                 self.coords.append(point)
 
+    def on_key_press(self, event):
+        ''' Detect key presses.  Activate annotation mode. '''
+        print('key_press:', event.key)
+        if event.key == 'a':
+            self.annotation_mode = True
+
+    def on_key_release(self, event):
+        ''' Detect key releases.  Exit annotation mode. '''
+        print('key_release:', event.key)
+        if event.key == 'a':
+            self.annotation_mode = False
+
     def on_click(self, event):
-        ''' Get the values of the chosen point in the scatterplot'''
+        ''' Get the values of the chosen point in the scatterplot. '''
         self.x1 = event.mouseevent.xdata
         self.y1 = event.mouseevent.ydata
         index = event.ind
@@ -154,13 +171,13 @@ class AnnotateablePlot():
                 self.annotate_this()
 
     def on_press(self, event):
-        ''' Get the starting mouse coordinates of a rectangular selection'''
+        ''' Get the starting mouse coordinates of a rectangular selection. '''
         self.x1 = event.xdata
         self.y1 = event.ydata
         print('on_press')
 
     def on_release(self, event):
-        ''' Get the ending mouse coordinates of a rectangular selection'''
+        ''' Get the ending mouse coordinates of a rectangular selection. '''
         self.x2 = event.xdata
         self.y2 = event.ydata
         print('on_release')
