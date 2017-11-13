@@ -1,9 +1,7 @@
 '''
 Code for the gui of the processing of aerosol gear
-
 Written by Ruhi Humphries
 Edited by Kristina Johnson
-
 Useful documentation:
     http://www.tkdocs.com/tutorial/widgets.html
     http://pyinmyeye.blogspot.com.au/2012/08/tkinter-combobox-demo.html
@@ -14,6 +12,7 @@ import os
 import time
 import sys
 import threading
+import logging
 import pandas as pd
 import numpy as np
 import tkinter as tk
@@ -159,6 +158,13 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
 
         print('Loading data from file')
 
+
+        logging.basicConfig(
+            level=logging.DEBUG,
+            format='(%(threadName)-10s) %(message)s',
+        )
+        logging.debug('just before thread.start()')
+
         thread = threading.Thread(target=self.loadAndProcess_Multithread,
                              	  args=(output_filetype,
                                   output_time_res,
@@ -166,7 +172,17 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                                   mask_df,
                                   flow_cal_df))
         thread.start()
+        logging.debug('just after thread.start()')
         # thread.join() stalls app FOREVER
+        # polling
+        # while len(threading.enumerate()) > 1:
+        #     time.sleep(2)
+        #     list = threading.enumerate()
+        #     for t in list:
+        #         if not t.isAlive():
+        #             print('Thread terminated')
+        #             logging.debug('Thread terminated')
+
 
 
     def loadAndProcess_Multithread(self,
@@ -220,7 +236,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
 
         print('number of threads = ', threading.enumerate())    # number = returns 2 objects - main and Thread1
         # Plot all the output files.
-        # self.create_plot_ccn(PLOTS)   # << Move this out of the thread.  GUIs do not like threads!
+        self.create_plot_ccn(self.plot_list)   # << Move this out of the thread.  GUIs do not like threads!
 
 #-----------------------------------------------------------
 # GUI Widgets
