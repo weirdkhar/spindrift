@@ -7,11 +7,11 @@ import numpy as np
 import tkinter as tk
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+from datetime import datetime as dt
+
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from datetime import datetime as dt
-
 
 class AnnotateablePlot():
     '''
@@ -44,13 +44,6 @@ class AnnotateablePlot():
         self.patch_list = []   # for the plot legend
         self.plot_selected = ''
 
-        # event callbacks
-        self.click = self.fig1.canvas.mpl_connect('pick_event', self.on_click)
-        self.press = self.fig1.canvas.mpl_connect('button_press_event', self.on_press)
-        self.drag = self.fig1.canvas.mpl_connect('button_release_event', self.on_release)
-        self.key_press = self.fig1.canvas.mpl_connect('key_press_event', self.on_key_press)
-        self.key_release = self.fig1.canvas.mpl_connect('key_release_event', self.on_key_release)
-
         # create axis labels & legend
         self.ax.set_ylabel('Number', color="#555555", fontsize=12)
         self.ax.set_xlabel('TimeStamp', color="#555555", fontsize=12)
@@ -77,6 +70,13 @@ class AnnotateablePlot():
         self.toolbar = NavigationToolbar2TkAgg(canvas, self.ccn_f41)
         self.toolbar.update()
         canvas._tkcanvas.grid(row=2, column=0, rowspan=1, columnspan=2, padx=5, pady=5)
+
+        # event callbacks
+        self.click = self.fig1.canvas.mpl_connect('pick_event', self.on_click)
+        self.press = self.fig1.canvas.mpl_connect('button_press_event', self.on_press)
+        self.drag = self.fig1.canvas.mpl_connect('button_release_event', self.on_release)
+        self.key_press = self.fig1.canvas.mpl_connect('key_press_event', self.on_key_press)
+        self.key_release = self.fig1.canvas.mpl_connect('key_release_event', self.on_key_release)
 
         # disconnect things later
         # self.fig1.canvas.mpl_disconnect(self.click)
@@ -154,44 +154,51 @@ class AnnotateablePlot():
 
     def on_click(self, event):
         ''' Get the values of the chosen point in the scatterplot. '''
-        self.x1 = event.mouseevent.xdata
-        self.y1 = event.mouseevent.ydata
-        index = event.ind
-        marker = event.artist
-        x = np.take(marker.get_xdata(), index)
-        y = np.take(marker.get_ydata(), index)
+        if self.annotation_mode == True:
+            self.x1 = event.mouseevent.xdata
+            self.y1 = event.mouseevent.ydata
+            index = event.ind
+            marker = event.artist
+            x = np.take(marker.get_xdata(), index)
+            y = np.take(marker.get_ydata(), index)
 
-        point = {'x': x[0], 'y' : y[0]}
-        print('point on_click = ', point)
+            point = {'x': x[0], 'y' : y[0]}
+            print('point on_click = ', point)
 
-        for i in range(0, len(self.columns)):
-            if self.is_in_array(point, self.columns[i]):
-                print('the point ', point, ' is in array', i+1)
-                self.coords.append(point)
-                self.annotate_this()
+            for i in range(0, len(self.columns)):
+                if self.is_in_array(point, self.columns[i]):
+                    print('the point ', point, ' is in array', i+1)
+                    self.coords.append(point)
+                    self.annotate_this()
+
+            self.annotation_mode = False
 
     def on_press(self, event):
         ''' Get the starting mouse coordinates of a rectangular selection. '''
-        self.x1 = event.xdata
-        self.y1 = event.ydata
-        print('on_press')
+        if self.annotation_mode == True:
+            self.x1 = event.xdata
+            self.y1 = event.ydata
+            print('on_press')
 
     def on_release(self, event):
         ''' Get the ending mouse coordinates of a rectangular selection. '''
-        self.x2 = event.xdata
-        self.y2 = event.ydata
-        print('on_release')
-        print('x equals', self.x2, self.x1)
-        print('y equals', self.y2, self.y1)
+        if self.annotation_mode == True:
+            self.x2 = event.xdata
+            self.y2 = event.ydata
+            print('on_release')
+            print('x equals', self.x2, self.x1)
+            print('y equals', self.y2, self.y1)
 
-        # Check that this is not a single clicked point.
-        # Do stuff for a dragged rectangular selection.
-        if self.x1 != self.x2 or self.y1 != self.y2:
-            for i in range(0, len(self.columns)):
-                self.is_in_rectangle(self.columns[i])
+            # Check that this is not a single clicked point.
+            # Do stuff for a dragged rectangular selection.
+            if self.x1 != self.x2 or self.y1 != self.y2:
+                for i in range(0, len(self.columns)):
+                    self.is_in_rectangle(self.columns[i])
 
-            if len(self.coords) > 0:
-                self.annotate_this()
+                if len(self.coords) > 0:
+                    self.annotate_this()
+
+                self.annotation_mode = False
 
     def colouring_in(self):
         ''' Colour in the points that have been annotated '''

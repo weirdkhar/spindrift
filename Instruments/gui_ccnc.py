@@ -159,39 +159,6 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         print('Loading data from file')
 
 
-        logging.basicConfig(
-            level=logging.DEBUG,
-            format='(%(threadName)-10s) %(message)s',
-        )
-        logging.debug('just before thread.start()')
-
-        thread = threading.Thread(target=self.loadAndProcess_Multithread,
-                             	  args=(output_filetype,
-                                  output_time_res,
-                                  concat_file_freq,
-                                  mask_df,
-                                  flow_cal_df))
-        thread.start()
-        logging.debug('just after thread.start()')
-        # thread.join() stalls app FOREVER
-        # polling
-        # while len(threading.enumerate()) > 1:
-        #     time.sleep(2)
-        #     list = threading.enumerate()
-        #     for t in list:
-        #         if not t.isAlive():
-        #             print('Thread terminated')
-        #             logging.debug('Thread terminated')
-
-
-
-    def loadAndProcess_Multithread(self,
-                                   output_filetype,
-                                   output_time_res,
-                                   concat_file_freq,
-                                   mask_df,
-                                   flow_cal_df):
-
         # Call processing function.
         # When this function calls return at its end, the thread is terminated automatically.
         CCNC.LoadAndProcess(ccn_raw_path=self.ccn_raw_path,
@@ -234,7 +201,8 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                     print('final_file is ', final_file)
                     self.plot_list.append(final_file)
 
-        print('number of threads = ', threading.enumerate())    # number = returns 2 objects - main and Thread1
+        # print('number of threads = ', threading.enumerate())    # number = returns 2 objects - main and Thread1
+
         # Plot all the output files.
         self.create_plot_ccn(self.plot_list)   # << Move this out of the thread.  GUIs do not like threads!
 
