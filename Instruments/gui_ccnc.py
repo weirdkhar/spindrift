@@ -349,7 +349,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
                                           text='Correct for pressure',
                                           variable=self.correct4pressure,
                                           onvalue=1, offvalue=0,
-                                          command=self.grey_press_input)
+                                          command=self.grey_press_input_ccn)
         self.ccn_cb_pressCal.select()
         self.ccn_lb_calPress = tk.Label(self.ccn_f322, text='Cal. Pressure')
         self.ccn_tb_calPress = tk.Entry(self.ccn_f322, width=5)
@@ -501,7 +501,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.nc_global_comment = self.nc_e4.get()
         self.w_netcdf_input.destroy()
 
-    def grey_press_input(self):
+    def grey_press_input_ccn(self):
         '''
         Disables input into the pressure fields if the checkbox isn't ticked.
         '''
