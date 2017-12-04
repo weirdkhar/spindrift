@@ -37,6 +37,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         KJ - new version using grid
         """
         tk.Frame.__init__(self, name='ccnprocessing')
+        print('init ccn processing')
         self.grid(row=0, column=0, sticky=tk.NSEW)
         self.master.title('DMT CCN Processing')
         self.master.geometry('1760x1160')    # original 880x560
@@ -215,7 +216,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         KJ - new version using grid
         """
         self.ccn_f1 = tk.LabelFrame(mainFrame, text='Input data')
-        self.ccn_b_open = tk.Button(self.ccn_f1, text='Select raw files', command=self.raw_file_dialog)
+        self.ccn_b_open = tk.Button(self.ccn_f1, text='Select raw files', command=self.raw_file_dialog_ccn)
         self.ccn_lb_openFiles = tk.Listbox(self.ccn_f1) # original listbox had a scroll bar added
         self.ccn_forceReload = tk.IntVar()
         self.ccn_cb_forceReload = tk.Checkbutton(self.ccn_f1,
@@ -239,7 +240,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.ccn_f2 = tk.LabelFrame(mainFrame, text='Output data')
         self.ccn_b_output = tk.Button(self.ccn_f2,
                                   text='Change output directory',
-                                  command=self.output_path_dialog)
+                                  command=self.output_path_dialog_ccn)
         self.ccn_t_outputPath = tk.Entry(self.ccn_f2)
 
         # Create output filetype combobox
@@ -311,7 +312,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.ccn_tb2 = tk.Entry(self.ccn_f311, width=40)
         self.ccn_b311 = tk.Button(self.ccn_f311,
                               text='Browse',
-                              command=self.ask_mask_file)
+                              command=self.ask_mask_file_ccn)
         # help tooltip
         self.ccn_l311 = tk.Label(self.ccn_f311, text=u'\u2754')
         ToolTip.ToolTip(self.ccn_l311,
@@ -325,7 +326,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         self.ccn_tb3 = tk.Entry(self.ccn_f321, width=40)
         self.ccn_b321 = tk.Button(self.ccn_f321,
                               text='Browse',
-                              command=self.ask_flowcal_file)
+                              command=self.ask_flowcal_file_ccn)
          # help tooltip
         self.ccn_l321 = tk.Label(self.ccn_f321, text=u'\u2754')
         ToolTip.ToolTip(self.ccn_l321,
@@ -438,7 +439,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
 #-----------------------------------------------------------
 # GUI Functionality
 #-----------------------------------------------------------
-    def raw_file_dialog(self):
+    def raw_file_dialog_ccn(self):
         '''Prompts user to select input files'''
         self.ccn_files_raw = filedialog.askopenfilenames()
         self.ccn_raw_path = os.path.dirname(self.ccn_files_raw[0])
@@ -449,33 +450,33 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
             self.ccn_lb_openFiles.insert(tk.END, self.ccn_files_raw[i])
         try:
             if self.ccn_output_path == '':
-                self.update_output_path()
+                self.update_output_path_ccn()
         except AttributeError:
-            self.update_output_path()
+            self.update_output_path_ccn()
         return
 
-    def update_output_path(self):
+    def update_output_path_ccn(self):
         self.ccn_t_outputPath.insert(tk.END, self.ccn_raw_path)
         self.ccn_output_path = self.ccn_raw_path
 
-    def browse_for_file(self):
+    def browse_for_file_ccn(self):
         '''Prompts user to select input file'''
         file = filedialog.askopenfilename()
         return file
 
-    def ask_mask_file(self):
+    def ask_mask_file_ccn(self):
         ''' Asks for the mask file input and shows it in the gui'''
-        self.ccn_mask_file = self.browse_for_file()
+        self.ccn_mask_file = self.browse_for_file_ccn()
         self.ccn_tb2.insert(tk.END, self.ccn_mask_file)
         return
 
-    def ask_flowcal_file(self):
+    def ask_flowcal_file_ccn(self):
         ''' Asks for the flow cal file input and shows it in the gui'''
-        self.ccn_flowcal_file = self.browse_for_file()
+        self.ccn_flowcal_file = self.browse_for_file_ccn()
         self.ccn_tb3.insert(tk.END, self.ccn_flowcal_file)
         return
 
-    def output_path_dialog(self):
+    def output_path_dialog_ccn(self):
         '''Selecting output path, if not chosen, use the input directory'''
         self.ccn_output_path = filedialog.askdirectory()
         self.ccn_t_outputPath.delete(0, tk.END)
@@ -488,7 +489,7 @@ class ccn_processing(GenericBaseGui, AnnotateablePlot):
         if self.ccn_cb_output_filetype.get() == 'netcdf':
             self._build_netcdf_input_window()
 
-    def close_netcdf_window(self):
+    def close_netcdf_window_ccn(self):
         '''
         Closes the netcdf window on the OK button press and saves the input
         as a temporary file which can be read by the code later.

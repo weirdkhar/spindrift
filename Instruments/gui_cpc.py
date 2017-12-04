@@ -10,6 +10,7 @@ Useful documentation:
     http://www.python-course.eu/tkinter_layout_management.php
 '''
 import re
+import os
 import threading
 import pandas as pd
 import numpy as np
@@ -24,8 +25,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 
 import atmoscripts
 import ToolTip
-import Instruments.CPC_TSI
-
+import Instruments.CPC_TSI as CPC_TSI
 
 class cpc_processing(GenericBaseGui):
     '''
@@ -36,9 +36,10 @@ class cpc_processing(GenericBaseGui):
         Initialise the gui
         KJ - new version using grid
         """
-        tk.Frame.__init__(self, name='ccnprocessing')
+        tk.Frame.__init__(self, name='cpcprocessing')
+        print('init cpc processing')
         self.grid(row=0, column=0, sticky=tk.NSEW)
-        self.master.title('DMT CCN Processing')
+        self.master.title('CPC TSI Processing')
         self.master.geometry('1760x1160')    # original 880x560
         self.isapp = isapp
         self.globalMainFrame = ''
@@ -172,11 +173,11 @@ class cpc_processing(GenericBaseGui):
                                    flow_cal_df):
 
         # Call processing function
-        CPC_TSI.LoadAndProcess(cpc_raw_path=self.cpc_raw_path,
-                               cpc_output_path=self.cpc_output_path,
-                               cpc_output_filetype=output_filetype,
+        CPC_TSI.LoadAndProcess(cn_raw_path=self.cpc_raw_path,
+                               cn_output_path=self.cpc_output_path,
+                               cn_output_filetype=output_filetype,
                                filename_base='CN3',
-                               force_reload_from_source=self.forceReload.get(),
+                               force_reload_from_source=self.cpc_forceReload.get(),
                                output_time_resolution=output_time_res,
                                concat_file_frequency=concat_file_freq,
                                input_filelist=list(self.cpc_files_raw),
@@ -201,12 +202,12 @@ class cpc_processing(GenericBaseGui):
         KJ - new version using grid
         """
         self.cpc_f1 = tk.LabelFrame(mainFrame, text='Input data')
-        self.cpc_b_open = tk.Button(self.cpc_f1, text='Select raw files', command=self.raw_file_dialog)
+        self.cpc_b_open = tk.Button(self.cpc_f1, text='Select raw files', command=self.raw_file_dialog_cpc)
         self.cpc_lb_openFiles = tk.Listbox(self.cpc_f1) # original listbox had a scroll bar added
-        self.forceReload = tk.IntVar()
+        self.cpc_forceReload = tk.IntVar()
         self.cpc_cb_forceReload = tk.Checkbutton(self.cpc_f1,
                                              text='Force reload from source',
-                                             variable=self.forceReload)
+                                             variable=self.cpc_forceReload)
         self.cpc_cb_forceReload.select()
 
         # place all Input Frame elements using grid
@@ -225,7 +226,7 @@ class cpc_processing(GenericBaseGui):
         self.cpc_f2 = tk.LabelFrame(mainFrame, text='Output data')
         self.cpc_b_output = tk.Button(self.cpc_f2,
                                   text='Change output directory',
-                                  command=self.output_path_dialog)
+                                  command=self.output_path_dialog_cpc)
         self.cpc_t_outputPath = tk.Entry(self.cpc_f2)
 
          # Create output filetype combobox
@@ -236,7 +237,7 @@ class cpc_processing(GenericBaseGui):
                                                state='readonly',
                                                width=10)
         self.cpc_cb_output_filetype.current(1)  # set selection
-        self.cpc_cb_output_filetype.bind('<<ComboboxSelected>>', self.launch_netcdf_input)
+        self.cpc_cb_output_filetype.bind('<<ComboboxSelected>>', self.launch_netcdf_input_cpc)
 
         file_freq=['Single file', 'Daily files', 'Weekly files', 'Monthly files']
         self.cpc_lb2 = tk.Label(self.cpc_f2, text='Select output frequency')
@@ -280,7 +281,7 @@ class cpc_processing(GenericBaseGui):
         self.cpc_tb2 = tk.Entry(self.cpc_f311, width=40)
         self.cpc_b311 = tk.Button(self.cpc_f311,
                               text='Browse',
-                              command=self.ask_mask_file)
+                              command=self.ask_mask_file_cpc)
 
         # help tooltip
         self.cpc_l311 = tk.Label(self.cpc_f311, text=u'\u2754')
@@ -295,7 +296,7 @@ class cpc_processing(GenericBaseGui):
         self.cpc_tb3 = tk.Entry(self.cpc_f321, width=40)
         self.cpc_b321 = tk.Button(self.cpc_f321,
                               text='Browse',
-                              command=self.ask_flowcal_file)
+                              command=self.ask_flowcal_file_cpc)
          # help tooltip
         self.cpc_l321 = tk.Label(self.cpc_f321, text=u'\u2754')
         ToolTip.ToolTip(self.cpc_l321,
@@ -326,7 +327,7 @@ than the measurement computer's time zone settings.''', wraplength=350)
                                            text='Correct Time Zone',
                                            variable=self.cpc_correct4TZ,
                                            onvalue=1, offvalue=0,
-                                           command=self.grey_press_input)
+                                           command=self.grey_press_input_cpc)
 
         self.cpc_lb_TZcurrent = tk.Label(self.cpc_f322, text='Export PCs TZ (current)')
         self.cpc_tb_TZcurrent = tk.Entry(self.cpc_f322, width=5)
@@ -416,7 +417,7 @@ than the measurement computer's time zone settings.''', wraplength=350)
 #-----------------------------------------------------------
 # GUI Functionality
 #-----------------------------------------------------------
-    def raw_file_dialog(self):
+    def raw_file_dialog_cpc(self):
         '''Prompts user to select input files'''
         self.cpc_files_raw = filedialog.askopenfilenames()
         self.cpc_raw_path = os.path.dirname(self.cpc_files_raw[0])
@@ -427,46 +428,46 @@ than the measurement computer's time zone settings.''', wraplength=350)
             self.cpc_lb_openFiles.insert(tk.END, self.cpc_files_raw[i])
         try:
             if self.cpc_output_path == '':
-                self.update_output_path()
+                self.update_output_path_cpc()
         except AttributeError:
-            self.update_output_path()
+            self.update_output_path_cpc()
         return
 
-    def update_output_path(self):
+    def update_output_path_cpc(self):
         self.cpc_t_outputPath.insert(tk.END, self.cpc_raw_path)
         self.cpc_output_path = self.cpc_raw_path
 
-    def browse_for_file(self):
+    def browse_for_file_cpc(self):
         '''Prompts user to select input file'''
-        file = filedialog.askopenfilename()
-        return file
+        file_cpc = filedialog.askopenfilename()
+        return file_cpc
 
-    def ask_mask_file(self):
+    def ask_mask_file_cpc(self):
         ''' Asks for the mask file input and shows it in the gui'''
-        self.mask_file = self.browse_for_file()
+        self.mask_file = self.browse_for_file_cpc()
         self.cpc_tb2.insert(tk.END, self.cpc_mask_file)
         return
 
-    def ask_flowcal_file(self):
+    def ask_flowcal_file_cpc(self):
         ''' Asks for the flow cal file input and shows it in the gui'''
-        self.cpc_flowcal_file = self.browse_for_file()
+        self.cpc_flowcal_file = self.browse_for_file_cpc()
         self.cpc_tb3.insert(tk.END, self.cpc_flowcal_file)
         return
 
-    def output_path_dialog(self):
+    def output_path_dialog_cpc(self):
         '''Selecting output path, if not chosen, use the input directory'''
         self.cpc_output_path = filedialog.askdirectory()
         self.cpc_t_outputPath.delete(0, tk.END)
         self.cpc_t_outputPath.insert(tk.END, self.cpc_output_path)
 
-    def launch_netcdf_input(self, event):
+    def launch_netcdf_input_cpc(self, event):
         '''
         Launches netcdf input when the combobox option is selected
         '''
         if self.cpc_cb_output_filetype.get() == 'netcdf':
             self._build_netcdf_input_window()
 
-    def close_netcdf_window(self):
+    def close_netcdf_window_cpc(self):
         '''
         Closes the netcdf window on the OK button press and saves the input
         as a temporary file which can be read by the code later.
@@ -478,7 +479,7 @@ than the measurement computer's time zone settings.''', wraplength=350)
         self.nc_global_comment = self.nc_e4.get()
         self.w_netcdf_input.destroy()
 
-    def grey_press_input(self):
+    def grey_press_input_cpc(self):
         '''
         Disables input into the pressure fields if the checkbox isn't ticked.
         '''
